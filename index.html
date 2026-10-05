@@ -1,0 +1,1648 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="pop">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Прежде чем поверить — интерактивный квиз</title>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;800&family=Unbounded:wght@600;800;900&family=Rubik:wght@500;800&family=JetBrains+Mono:wght@500;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0b0720;--panel:rgba(18,10,46,.65);--cd:rgba(255,255,255,.06);--bd:rgba(255,255,255,.14);--bw:1px;--rd:18px;--rdl:36px;--tx:#f4f1ff;--mu:#a79fc7;--a1:#8b5cf6;--a2:#ff2e93;--a3:#c6ff3d;--a4:#22d3ee;--ok:#34f5a0;--no:#ff4d8d;--hl:#c6ff3d;--on:#fff;--fd:'Unbounded',sans-serif;--fb:'Manrope',sans-serif;--sh:none;--shh:0 14px 40px rgba(34,211,238,.25);--shp:0 0 0 1px rgba(139,92,246,.3),0 30px 90px rgba(0,0,0,.55),0 0 90px rgba(139,92,246,.25);--lift:translateY(-5px);--hb:var(--a4);--grad:linear-gradient(135deg,var(--a1),var(--a2));--tg:linear-gradient(90deg,var(--a3),var(--a4),var(--a2),var(--a3));--bgimg:linear-gradient(rgba(255,255,255,.1) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.1) 1px,transparent 1px);--bgsz:48px 48px;--bm:20%;--bt:var(--tx);--blur:22px;--blobs:.45}
+[data-theme=pop]{--bg:#ffe45e;--panel:#fffaf0;--cd:#fff;--bd:#111;--bw:3px;--rd:16px;--rdl:30px;--tx:#111;--mu:#4a4a4a;--a1:#ff4fa3;--a2:#3d5afe;--a3:#00d68f;--a4:#ffc400;--ok:#00c27a;--no:#ff3b3b;--hl:#3d5afe;--on:#fff;--fb:'Rubik',sans-serif;--sh:5px 5px 0 #111;--shh:8px 8px 0 #111;--shp:10px 10px 0 #111;--lift:translate(-3px,-3px) rotate(-.6deg);--hb:#111;--grad:var(--a1);--tg:linear-gradient(var(--a2),var(--a2));--bgimg:radial-gradient(#11111140 2px,transparent 2px);--bgsz:24px 24px;--bm:100%;--bt:#111;--blur:0px;--blobs:0}
+[data-theme=hack]{--bg:#010805;--panel:rgba(2,14,9,.86);--cd:rgba(0,255,156,.05);--bd:rgba(0,255,156,.35);--rd:4px;--rdl:10px;--tx:#c8ffd9;--mu:#5fae7d;--a1:#00ff9c;--a2:#00e5ff;--a3:#ff3df2;--a4:#ffe600;--ok:#00ff9c;--no:#ff3d71;--hl:#00ff9c;--on:#021208;--fd:'JetBrains Mono',monospace;--fb:'JetBrains Mono',monospace;--shh:0 0 26px rgba(0,255,156,.4);--shp:0 0 0 1px rgba(0,255,156,.4),0 0 80px rgba(0,255,156,.2);--lift:translateY(-3px);--hb:var(--a1);--grad:var(--a1);--tg:linear-gradient(var(--a1),var(--a1));--bgimg:linear-gradient(rgba(0,255,156,.08) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,156,.08) 1px,transparent 1px);--bgsz:32px 32px;--bm:12%;--blur:6px;--blobs:0}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--tx);font-family:var(--fb);min-height:100vh;display:flex;justify-content:center;align-items:center;padding:10px;overflow-x:hidden;transition:background .5s}
+.bg{position:fixed;inset:0;z-index:0;background-image:var(--bgimg);background-size:var(--bgsz)}
+[data-theme=neon] .bg{-webkit-mask-image:radial-gradient(circle at 50% 40%,#000,transparent 75%);mask-image:radial-gradient(circle at 50% 40%,#000,transparent 75%)}
+.blobs{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;opacity:var(--blobs);transition:.5s}
+.blobs i{position:absolute;width:46vmax;height:46vmax;border-radius:50%;filter:blur(90px);animation:drift 18s ease-in-out infinite alternate}
+.blobs i:nth-child(1){background:var(--a1);top:-15%;left:-10%}.blobs i:nth-child(2){background:var(--a2);bottom:-20%;right:-10%;animation-delay:-6s}.blobs i:nth-child(3){background:var(--a4);width:30vmax;height:30vmax;top:40%;left:55%;animation-delay:-12s}
+@keyframes drift{to{transform:translate(8vw,6vh) scale(1.2)}}
+#fx,#rain{position:fixed;inset:0;pointer-events:none}#fx{z-index:60}#rain{z-index:0;opacity:.35;display:none}[data-theme=hack] #rain{display:block}
+[data-theme=hack] body::after{content:'';position:fixed;inset:0;z-index:70;pointer-events:none;background:repeating-linear-gradient(transparent 0 2px,rgba(0,0,0,.22) 2px 3px)}
+#app{position:relative;z-index:1;width:100vw;height:100vh;max-width:1100px;max-height:850px;background:var(--panel);backdrop-filter:blur(var(--blur));border:var(--bw) solid var(--bd);border-radius:var(--rdl);box-shadow:var(--shp);padding:18px;display:flex;transition:.4s}
+#app.hit{animation:hit .4s}@keyframes hit{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.themes{position:fixed;top:10px;right:10px;z-index:80;display:flex;gap:6px;padding:5px;border-radius:50px;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+.themes button{border:0;background:transparent;color:#fff;font:700 .75rem 'Manrope',sans-serif;padding:7px 12px;border-radius:50px;cursor:pointer;transition:.2s}
+.themes button.on{background:#fff;color:#000}
+.steps{position:absolute;top:16px;left:50%;transform:translateX(-50%);display:flex;gap:8px;z-index:3}
+.steps i{width:28px;height:7px;border-radius:7px;background:var(--bd);border:calc(var(--bw)/1.5) solid var(--bd);transition:.4s}.steps i.on{background:var(--a3);box-shadow:0 0 12px var(--a3)}
+[data-theme=pop] .steps i.on{background:var(--a1);box-shadow:none}[data-theme=hack] .steps i.on{background:var(--a1)}
+.container{width:100%;height:100%;padding:36px 30px 22px;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--a1) transparent}
+.page{display:none;flex-direction:column;align-items:center;width:100%;height:100%;justify-content:center}.page.active{display:flex}
+.page.active>*{animation:rise .55s cubic-bezier(.2,.8,.2,1) both;animation-delay:calc(var(--i,0)*55ms)}
+@keyframes rise{from{opacity:0;transform:translateY(22px) scale(.97)}to{opacity:1;transform:none}}@keyframes fadeIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.kicker{font-family:var(--fd);font-size:.7rem;font-weight:800;letter-spacing:3px;text-transform:uppercase;color:var(--hl);margin-bottom:10px;text-align:center}
+[data-theme=hack] .kicker::before{content:'> '}[data-theme=hack] .kicker::after{content:'_';animation:blink 1s steps(2) infinite}@keyframes blink{50%{opacity:0}}
+.title{font-family:var(--fd);font-weight:900;font-size:clamp(1.4rem,3.7vw,2.7rem);letter-spacing:-1px;text-align:center;margin-bottom:.4em;line-height:1.2;text-wrap:balance}
+.title.big{font-size:clamp(2.2rem,7.2vw,5rem);line-height:1.02;letter-spacing:-2px}
+.title span{background:var(--tg);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;animation:flow 6s linear infinite}
+@keyframes flow{to{background-position:250% 0}}
+[data-theme=pop] .title span{-webkit-text-fill-color:#fff;background:var(--a1);padding:0 .22em;border:var(--bw) solid #111;box-shadow:5px 5px 0 #111;display:inline-block;transform:rotate(-2deg);animation:none;margin-top:6px}
+[data-theme=hack] .title span{-webkit-text-fill-color:var(--a1);background:none;animation:glitch 3s infinite;text-shadow:0 0 18px var(--a1)}
+@keyframes glitch{0%,90%,100%{text-shadow:0 0 18px var(--a1)}92%{text-shadow:-4px 0 var(--a3),4px 0 var(--a2);transform:translateX(2px)}96%{text-shadow:4px 0 var(--a3),-4px 0 var(--a2);transform:translateX(-2px)}}
+.subtitle{font-size:clamp(.95rem,1.3vw,1.12rem);color:var(--mu);text-align:center;line-height:1.6;max-width:640px;margin-bottom:.8em;font-weight:500}
+.text-block{font-size:clamp(.95rem,1.1vw,1.06rem);line-height:1.7;max-width:720px;margin:.4em 0;width:100%}.text-block strong{color:var(--hl);font-weight:800}
+.quote{font-size:1rem;font-weight:700;border-left:5px solid var(--a2);padding:10px 18px;margin:.8em 0;max-width:650px;width:100%;background:var(--cd);border-radius:0 14px 14px 0}
+.divider-thick{height:6px;width:110px;background:var(--grad);margin:.4em auto .9em;border-radius:6px}
+.hero-icon-small{font-size:3rem;line-height:1;margin:4px 0;display:inline-block;animation:fl 3s ease-in-out infinite}@keyframes fl{50%{transform:translateY(-8px) rotate(4deg)}}
+.stks{position:absolute;inset:0;pointer-events:none;overflow:hidden}.stks i{position:absolute;font-style:normal;font-size:clamp(2.2rem,5vw,4rem);animation:fl 4s ease-in-out infinite;filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}
+.stks i:nth-child(1){top:11%;left:5%}.stks i:nth-child(2){top:16%;right:6%;animation-delay:-1s}.stks i:nth-child(3){bottom:16%;left:7%;animation-delay:-2s}.stks i:nth-child(4){bottom:12%;right:5%;animation-delay:-3s}
+.ticker{width:calc(100% + 60px);overflow:hidden;margin:8px -30px 14px;padding:9px 0;border-block:var(--bw) solid var(--bd);background:var(--a4);color:#111;transform:rotate(-1.6deg)}
+[data-theme=neon] .ticker{background:rgba(198,255,61,.1);color:var(--a3)}[data-theme=hack] .ticker{background:transparent;color:var(--a1)}
+.ticker div{display:flex;gap:30px;width:max-content;font-family:var(--fd);font-weight:800;font-size:.78rem;letter-spacing:2px;animation:tick 20s linear infinite}@keyframes tick{to{transform:translateX(-50%)}}
+.feature-card,.stat-card,.sign-item,.mode-card,.game-card,.game-header,.game-text,.sort-card,.answer-btn,.pair-item,.player-panel,.result-box,.detail-statement,.detail-block,.fake-post,.bar-row,.stat-box,.feedback,.broken-arg,.etalon-box,.sort-bin,.text-input,.fixarea{background:var(--cd);border:var(--bw) solid var(--bd);border-radius:var(--rd);box-shadow:var(--sh);transition:.2s cubic-bezier(.2,.8,.2,1)}
+.feature-card:hover,.mode-card:hover,.game-card:hover,.sign-item:hover,.stat-card:hover,.sort-bin:hover,.pair-item:hover,.answer-btn:hover:not(:disabled){transform:var(--lift);box-shadow:var(--shh);border-color:var(--hb)}
+.features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:720px;margin:14px 0}
+.feature-card{padding:18px 12px;text-align:center}.f-icon{font-size:2.3rem;display:block;margin-bottom:6px}.f-text{font-size:.86rem;font-weight:800;line-height:1.3}
+.stats-row{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;width:100%;max-width:700px;margin:14px 0}
+.stat-card{--sc:var(--a4);padding:22px 12px;text-align:center}.stat-card.pink{--sc:var(--a2)}.stat-card.orange{--sc:var(--a3)}
+.s-num{font-family:var(--fd);font-size:clamp(1.4rem,3vw,2.1rem);font-weight:900;color:var(--sc);text-shadow:0 0 22px var(--sc);line-height:1}.s-label{font-size:.8rem;color:var(--mu);margin-top:8px;line-height:1.3;font-weight:600}
+[data-theme=pop] .stat-card{background:var(--sc)}[data-theme=pop] .s-num{color:#111;text-shadow:none}[data-theme=pop] .s-label{color:#111}
+.signs-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;width:100%;max-width:700px;margin:12px 0}
+.sign-item{display:flex;align-items:center;gap:14px;padding:14px 16px}.sign-item .n{font-family:var(--fd);font-weight:900;font-size:1.1rem;color:var(--hl);opacity:.8}.s-emoji{font-size:1.8rem}.s-text{font-size:.95rem;font-weight:800}
+.bar-row{width:100%;max-width:620px;margin:6px 0;padding:12px 16px}.bar-label{font-size:.88rem;margin-bottom:8px;display:flex;justify-content:space-between;font-weight:600}.bar-label strong{color:var(--hl);font-family:var(--fd)}
+.bar-track{height:12px;background:rgba(128,128,128,.25);border:calc(var(--bw)/1.5) solid var(--bd);border-radius:12px;overflow:hidden}.bar-fill{height:100%;background:var(--grad);animation:grow 1.4s .4s cubic-bezier(.2,.8,.2,1) both}@keyframes grow{from{width:0}}
+.badge-row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:12px 0;max-width:680px}
+.badge{--bc:var(--a1);padding:8px 16px;border-radius:12px;font-size:.85rem;font-weight:800;background:color-mix(in srgb,var(--bc) var(--bm),transparent);border:var(--bw) solid var(--bc);color:var(--bt);transform:rotate(-3deg)}
+.badge.pink{--bc:var(--a2);transform:rotate(2.5deg)}.badge.green{--bc:var(--a3);transform:rotate(-1.5deg)}.badge.orange{--bc:var(--a4);transform:rotate(3deg)}
+[data-theme=pop] .badge{border-color:#111;box-shadow:3px 3px 0 #111}
+.nav-buttons{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;margin-top:18px}
+.btn{background:var(--cd);border:var(--bw) solid var(--bd);color:var(--tx);font-weight:800;font-family:var(--fb);font-size:clamp(.85rem,1vw,1rem);padding:12px 26px;border-radius:var(--rd);cursor:pointer;transition:.15s;box-shadow:var(--sh)}
+.btn:hover{transform:var(--lift);box-shadow:var(--shh);border-color:var(--hb)}.btn:active{transform:scale(.95);box-shadow:none}
+.btn.secondary{color:var(--mu)}
+.btn.primary{background:var(--grad);color:var(--on);border-color:var(--bd);box-shadow:0 8px 30px color-mix(in srgb,var(--a2) 50%,transparent)}
+[data-theme=pop] .btn.primary{box-shadow:5px 5px 0 #111}[data-theme=hack] .btn.primary{box-shadow:0 0 24px rgba(0,255,156,.5);text-transform:uppercase}
+.btn.big{font-family:var(--fd);font-size:1.1rem;padding:18px 44px;animation:glow 2.4s ease-in-out infinite}@keyframes glow{50%{filter:brightness(1.2)}}
+.btn.full{width:100%;max-width:340px;padding:14px 26px;font-size:1rem}
+.footer-sign{margin-top:14px;font-size:.72rem;color:var(--mu);opacity:.7;letter-spacing:1px;text-align:center}
+.mode-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;width:100%;max-width:620px;margin:16px 0}.mode-card{padding:32px 20px;text-align:center;cursor:pointer}
+.m-icon{font-size:3.2rem;display:block;margin-bottom:8px}.m-title{font-family:var(--fd);font-weight:800;font-size:1.05rem}.m-desc{font-size:.9rem;color:var(--mu);margin-top:8px;line-height:1.5;font-weight:500}
+.game-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;width:100%;max-width:740px;margin:16px 0}
+.game-card{padding:16px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:14px}
+.g-icon{font-size:2.1rem;width:60px;height:60px;display:grid;place-items:center;border-radius:var(--rd);background:color-mix(in srgb,var(--a1) 30%,transparent);border:var(--bw) solid var(--bd);flex-shrink:0}
+.game-card:nth-child(4n+2) .g-icon{background:color-mix(in srgb,var(--a2) 30%,transparent)}.game-card:nth-child(4n+3) .g-icon{background:color-mix(in srgb,var(--a3) 30%,transparent)}.game-card:nth-child(4n) .g-icon{background:color-mix(in srgb,var(--a4) 30%,transparent)}
+.g-content{flex:1}.g-title{font-weight:800;font-size:1rem}.g-desc{font-size:.82rem;color:var(--mu);margin-top:4px;line-height:1.4;font-weight:500}
+.game-header{display:flex;justify-content:space-between;width:100%;max-width:680px;padding:10px 16px;font-size:.92rem;font-weight:800;color:var(--mu);margin-bottom:14px;gap:12px;flex-wrap:wrap}
+.score{color:var(--hl);font-family:var(--fd)}.errors{color:var(--no);font-family:var(--fd)}.turn{color:var(--a4)}
+.game-question{font-size:clamp(1.05rem,1.6vw,1.3rem);font-weight:800;text-align:center;margin:10px 0 18px;max-width:640px;line-height:1.5}
+.game-text,.sort-card{border-left:6px solid var(--a4);padding:20px 24px;font-size:1.02rem;line-height:1.6;max-width:640px;margin:10px 0 20px;text-align:left}
+.game-text em{color:var(--hl)}.sort-card{font-weight:700;text-align:center;width:100%;min-height:80px;display:flex;align-items:center;justify-content:center;border-left-color:var(--a3)}
+.answer-grid{display:grid;gap:12px;width:100%;max-width:640px}.answer-grid.two,.answer-grid.four{grid-template-columns:1fr 1fr}
+.answer-btn{padding:16px 20px;font-family:var(--fb);font-size:1rem;font-weight:800;color:var(--tx);cursor:pointer;text-align:center;line-height:1.4}
+.answer-btn.correct,.sort-bin.correct,.pair-item.correct-pick{border-color:var(--ok);background:color-mix(in srgb,var(--ok) 22%,var(--cd));box-shadow:0 0 28px color-mix(in srgb,var(--ok) 50%,transparent);animation:pop .5s}
+.answer-btn.wrong,.sort-bin.wrong,.pair-item.wrong-pick{border-color:var(--no);background:color-mix(in srgb,var(--no) 22%,var(--cd));box-shadow:0 0 28px color-mix(in srgb,var(--no) 50%,transparent);animation:shake .4s}
+[data-theme=pop] .answer-btn.correct,[data-theme=pop] .answer-btn.wrong{border-color:#111;box-shadow:var(--sh)}
+.answer-btn:disabled{cursor:default}@keyframes pop{50%{transform:scale(1.06)}}@keyframes shake{25%{transform:translateX(-7px)}75%{transform:translateX(7px)}}
+.feedback{margin:16px 0;padding:18px 20px;font-size:.96rem;line-height:1.6;max-width:640px;width:100%;display:none;font-weight:500}.feedback.show{display:block;animation:fadeIn .3s}
+.feedback.good{border-color:var(--ok);border-left-width:6px;background:color-mix(in srgb,var(--ok) 16%,var(--cd))}.feedback.bad{border-color:var(--no);border-left-width:6px;background:color-mix(in srgb,var(--no) 16%,var(--cd))}
+.fb-actions{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center}.fb-actions .btn{padding:8px 18px;font-size:.85rem}
+.input-wrap{width:100%;max-width:640px;margin:10px 0}.text-input,.fixarea{width:100%;padding:14px 18px;font-family:var(--fb);font-size:1rem;color:var(--tx);outline:none}.fixarea{min-height:90px;max-width:640px;resize:vertical;line-height:1.6}
+.text-input:focus,.fixarea:focus{border-color:var(--a4);box-shadow:0 0 22px color-mix(in srgb,var(--a4) 40%,transparent)}::placeholder{color:var(--mu);opacity:.7}
+.pair-list{width:100%;max-width:640px;margin:14px 0}.pair-item{padding:14px 18px;margin-bottom:10px;display:flex;align-items:center;gap:12px;cursor:pointer}.pair-item.selected{border-color:var(--a1);background:color-mix(in srgb,var(--a1) 25%,var(--cd))}
+.pair-item .num{width:30px;height:30px;background:var(--a1);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.85rem;flex-shrink:0}
+.player-panel{padding:20px;margin:10px 0;width:100%;max-width:640px;text-align:center}.p-title{font-family:var(--fd);font-weight:800;font-size:1rem;margin-bottom:8px}.p-desc{font-size:.92rem;color:var(--mu);line-height:1.5}
+.timer-display,.race-timer{font-family:var(--fd);font-size:clamp(1.8rem,4.5vw,2.8rem);font-weight:800;color:var(--a4);text-align:center;margin:6px 0 12px;font-variant-numeric:tabular-nums}
+[data-theme=pop] .timer-display,[data-theme=pop] .race-timer{color:var(--a2)}.timer-display.warning,.race-timer.warning{color:var(--no)!important;animation:pulse .5s infinite}@keyframes pulse{50%{opacity:.5;transform:scale(1.08)}}
+.result-box{padding:30px 24px;width:100%;max-width:560px;text-align:center}.result-box h2{font-family:var(--fd);font-weight:800;font-size:clamp(1.1rem,2.2vw,1.5rem)}.result-box .hero-icon-small{font-size:4.5rem}
+.big-score{font-family:var(--fd);font-weight:900;font-size:clamp(3.2rem,6vw,4.6rem);color:var(--hl);margin:8px 0;text-shadow:0 0 30px color-mix(in srgb,var(--hl) 60%,transparent)}[data-theme=pop] .big-score{text-shadow:4px 4px 0 var(--a4)}
+.rank{font-weight:800;font-size:clamp(1.1rem,1.8vw,1.4rem);margin:4px 0}.verdict{font-size:.95rem;margin:10px 0 14px;line-height:1.6;padding:14px;background:rgba(128,128,128,.14);border-radius:14px;font-weight:500}
+.result-box .stats{display:flex;justify-content:center;gap:20px;font-size:.85rem;color:var(--mu);margin:6px 0 16px;flex-wrap:wrap;font-weight:600}.result-box .stats span{color:var(--hl);font-weight:800}
+.progress-bar{width:100%;max-width:640px;height:10px;background:rgba(128,128,128,.25);border:calc(var(--bw)/1.5) solid var(--bd);border-radius:10px;margin:6px 0 12px;overflow:hidden}.progress-fill{height:100%;background:var(--grad);transition:width .4s}
+.detail-wrap{width:100%;max-width:720px;padding:10px 0;text-align:left}.detail-head{text-align:center;margin-bottom:20px}.detail-icon{font-size:4rem;line-height:1;margin-bottom:8px}
+.detail-type{display:inline-block;padding:6px 18px;border-radius:10px;font-weight:800;font-size:.85rem;letter-spacing:1px;text-transform:uppercase;transform:rotate(-2deg);border:var(--bw) solid var(--bd)}
+.detail-type.fake{background:var(--no);color:#fff}.detail-type.fact{background:var(--ok);color:#06241a}.detail-type.opinion{background:var(--a4);color:#111}.detail-type.manip,.detail-type.logic{background:var(--a1);color:#fff}
+[data-theme=hack] .detail-type.manip,[data-theme=hack] .detail-type.logic{color:#021208}
+.detail-statement{border-left:6px solid var(--a1);padding:20px 24px;font-size:1.05rem;line-height:1.6;margin-bottom:16px;font-weight:700}.detail-block{padding:20px 24px;margin-bottom:14px}
+.detail-block h3{font-family:var(--fd);font-size:.8rem;color:var(--hl);margin-bottom:10px;font-weight:800;text-transform:uppercase;letter-spacing:1px}.detail-block p{font-size:.98rem;line-height:1.7;font-weight:500}.detail-block a{color:var(--hl);text-decoration:underline;word-break:break-word;font-weight:800}
+.sort-bins{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;width:100%;max-width:640px}.sort-bin{padding:24px 12px;text-align:center;font-weight:800;font-size:.95rem;border-style:dashed;cursor:pointer}
+.fake-post{padding:18px 22px;max-width:560px;width:100%;margin:10px 0 18px;text-align:left}.fake-post-header{display:flex;align-items:center;gap:10px;margin-bottom:12px;padding-bottom:10px;border-bottom:var(--bw) solid var(--bd)}
+.fake-post-avatar{width:42px;height:42px;border-radius:50%;background:var(--grad);display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;border:var(--bw) solid var(--bd)}.fake-post-name{font-weight:800;font-size:.92rem}.fake-post-sub{font-size:.75rem;color:var(--mu);margin-top:2px}.fake-post-body{font-size:1rem;line-height:1.9;font-weight:500}
+.flag{background:color-mix(in srgb,var(--a4) 35%,transparent);border-bottom:2px dashed var(--a4);border-radius:4px;padding:1px 4px;cursor:pointer;font-weight:800}.flag:hover{background:color-mix(in srgb,var(--a4) 65%,transparent)}.flag.revealed{background:color-mix(in srgb,var(--no) 45%,transparent);border-bottom-color:var(--no)}
+.feed-counter{text-align:center;font-weight:800;color:var(--hl);margin:4px 0 8px}
+.broken-arg{border-color:var(--no);border-left-width:6px;background:color-mix(in srgb,var(--no) 12%,var(--cd));padding:18px 22px;line-height:1.6;font-style:italic;max-width:640px;width:100%;margin-bottom:14px;font-weight:600}
+.etalon-box{display:none;border-color:var(--ok);border-left-width:6px;background:color-mix(in srgb,var(--ok) 14%,var(--cd));padding:18px 22px;margin-top:14px;max-width:640px;width:100%;line-height:1.7}.etalon-box.show{display:block;animation:fadeIn .3s}
+#toast{position:fixed;top:64px;left:50%;z-index:90;transform:translate(-50%,-20px) scale(.8);opacity:0;pointer-events:none;font-family:var(--fd);font-weight:900;font-size:1.2rem;padding:10px 22px;border-radius:50px;background:var(--a4);color:#111;border:var(--bw) solid #111;box-shadow:var(--sh);transition:.3s cubic-bezier(.3,1.6,.5,1)}#toast.on{opacity:1;transform:translate(-50%,0) scale(1)}
+@media(max-width:768px){body{padding:0}#app{max-height:none;height:auto;min-height:100vh;border-radius:0;padding:0}.container{padding:50px 14px 20px}.game-grid,.mode-grid,.answer-grid.four,.features-grid,.stats-row,.signs-grid,.sort-bins{grid-template-columns:1fr}.features-grid[style]{grid-template-columns:1fr 1fr!important}.ticker{width:calc(100% + 28px);margin-inline:-14px}.stks{display:none}.themes button{padding:6px 9px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+
+.page{justify-content:safe center}
+.game-card{position:relative}.game-card .done{position:absolute;top:-10px;right:-8px;width:30px;height:30px;border-radius:50%;background:var(--ok);border:3px solid #111;display:grid;place-items:center;font-weight:900;color:#fff;transform:rotate(8deg)}
+.chip{display:inline-block;margin-left:8px;padding:2px 12px;border-radius:50px;background:var(--a4);border:3px solid #111;color:#111;font-weight:800}
+.xp{margin:6px 0 14px;text-align:left}.xp-top{display:flex;justify-content:space-between;font-weight:800;margin-bottom:6px;font-size:.95rem}#stars{letter-spacing:2px}
+.memo{width:100%;max-width:640px;display:grid;gap:10px}.memo-step{display:flex;gap:14px;align-items:center;padding:12px 16px;background:var(--cd);border:var(--bw) solid var(--bd);border-radius:var(--rd);box-shadow:var(--sh);cursor:pointer;transition:.2s;font-size:.95rem;line-height:1.45;font-weight:500}
+.memo-step:nth-child(odd){transform:rotate(-.5deg)}.memo-step:nth-child(even){transform:rotate(.5deg)}
+.memo-step b{flex:0 0 40px;height:40px;border-radius:50%;display:grid;place-items:center;font-family:var(--fd);background:var(--a4);border:3px solid #111;transition:.25s}
+.memo-step:hover{transform:translate(-3px,-3px);box-shadow:var(--shh)}.memo-step.on{background:color-mix(in srgb,var(--ok) 25%,#fff)}.memo-step.on b{background:var(--ok);color:#fff}.memo-step.on b::before{content:'✓'}.memo-step.on b{font-size:0}.memo-step.on b::before{font-size:1.2rem}
+.ach{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:640px}.ach div{padding:12px 8px;text-align:center;background:var(--cd);border:var(--bw) solid var(--bd);border-radius:var(--rd);box-shadow:var(--sh);font-size:.78rem;font-weight:700;line-height:1.3}
+.ach div i{display:block;font-style:normal;font-size:2rem}.ach div b{display:block;font-size:.85rem}.ach .lock{filter:grayscale(1);opacity:.45;box-shadow:none}.ach .new{animation:pop .6s}
+.plus{position:fixed;z-index:95;pointer-events:none;font-family:var(--fd);font-weight:900;font-size:1.6rem;color:var(--a3);-webkit-text-stroke:2px #111;paint-order:stroke fill;animation:plus 1s ease-out forwards}@keyframes plus{to{transform:translateY(-70px) scale(1.3);opacity:0}}
+@media(max-width:768px){.ach{grid-template-columns:repeat(2,1fr)}}
+
+.ptools{position:fixed;top:10px;left:10px;z-index:80;display:flex;gap:6px;padding:5px;border-radius:50px;background:rgba(0,0,0,.65);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.2)}
+.ptools button{min-width:36px;height:36px;border:0;border-radius:50px;background:rgba(255,255,255,.14);color:#fff;font:800 .8rem 'Manrope',sans-serif;cursor:pointer;transition:.2s}.ptools button:hover{background:var(--a2)}
+.modal{position:fixed;inset:0;z-index:100;display:none;place-items:center;padding:16px;background:rgba(5,3,20,.65);backdrop-filter:blur(8px)}.modal.on{display:grid;animation:fadeIn .25s}
+.modal-box{position:relative;width:100%;max-width:560px;max-height:90vh;overflow:auto;padding:26px;background:var(--panel);color:var(--tx);border:var(--bw) solid var(--bd);border-radius:var(--rdl);box-shadow:var(--shp)}.modal-box .mclose{position:absolute;top:12px;right:12px;padding:4px 12px}
+#hint{position:fixed;right:14px;bottom:14px;z-index:70;max-width:min(340px,82vw);display:none;font-size:.8rem;line-height:1.4;transform:rotate(1deg);cursor:pointer}#hint.on{display:block}
+@media(max-width:768px){.ptools{top:6px;left:6px;gap:3px}.ptools button{min-width:30px;height:30px;font-size:.7rem}.themes{top:6px;right:6px}}
+</style>
+</head>
+<body>
+<div class="bg"></div><div class="blobs"><i></i><i></i><i></i></div><canvas id="rain"></canvas><canvas id="fx"></canvas><div id="toast"></div>
+<div class="themes" id="themes"><button data-t="neon">🌙 Тёмная</button><button data-t="pop">🧃 Поп</button><button data-t="hack">👾 Хакер</button></div>
+<div id="app">
+<div class="steps" id="steps"><i class="on"></i><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="container">
+
+        <div class="page active" id="page1">
+            <div class="stks"><i>🕵️</i><i>🎭</i><i>⚖️</i><i>🧠</i></div>
+            <div class="kicker">Урок критического мышления</div>
+            <div class="title big">НЕ ВЕДИСЬ<br>НА <span>ФЕЙКИ</span></div>
+            <div class="subtitle">11 мини-игр про фейки, манипуляции и логические ловушки. Сможешь переиграть интернет, пока он не переиграл тебя?</div>
+            <div class="ticker"><div><span>ФЕЙК ✦</span><span>ФАКТ ✦</span><span>МНЕНИЕ ✦</span><span>МАНИПУЛЯЦИЯ ✦</span><span>ЛОГИКА ✦</span><span>ФЕЙК ✦</span><span>ФАКТ ✦</span><span>МНЕНИЕ ✦</span><span>МАНИПУЛЯЦИЯ ✦</span><span>ЛОГИКА ✦</span><span>ФЕЙК ✦</span><span>ФАКТ ✦</span><span>МНЕНИЕ ✦</span><span>МАНИПУЛЯЦИЯ ✦</span><span>ЛОГИКА ✦</span><span>ФЕЙК ✦</span><span>ФАКТ ✦</span><span>МНЕНИЕ ✦</span><span>МАНИПУЛЯЦИЯ ✦</span><span>ЛОГИКА ✦</span></div></div>
+            <div class="badge-row"><span class="badge">🎮 11 игр</span><span class="badge pink">👥 В паре</span><span class="badge green">🧠 Соло</span><span class="badge orange">⏱️ 15 мин</span></div>
+            <div class="nav-buttons"><button class="btn primary big" onclick="goToPage(2)">ПОГНАЛИ →</button></div>
+            <div class="footer-sign">Проект команды МГПУ им. Евсевьева × МОУ «Средняя школа № 5»</div>
+        </div>
+
+        <div class="page" id="page2"><div class="kicker">Теория · 1 из 6</div><div class="hero-icon-small">🎯</div><div class="title"><span>Что такое</span> критическое мышление?</div><div class="divider-thick"></div><div class="text-block"><strong>Критическое мышление</strong> — это способность анализировать информацию, проверять её достоверность, отделять факты от мнений и принимать решения на основе доказательств, а не эмоций.</div><div class="text-block">Это не про то, чтобы «критиковать всех и вся», а про то, чтобы <strong>задавать правильные вопросы</strong> к любой информации:</div><div class="signs-grid"><div class="sign-item"><span class="s-emoji">❓</span><span class="s-text">Кто это сказал?</span></div><div class="sign-item"><span class="s-emoji">📍</span><span class="s-text">Откуда информация?</span></div><div class="sign-item"><span class="s-emoji">🎯</span><span class="s-text">Какая цель у источника?</span></div><div class="sign-item"><span class="s-emoji">🔬</span><span class="s-text">Есть ли доказательства?</span></div></div><div class="quote">«Критическое мышление — это не дар, а навык. И как любой навык, его можно натренировать.»</div><div class="nav-buttons"><button class="btn secondary" onclick="goToPage(1)">← Назад</button><button class="btn" onclick="goToPage(3)">Далее →</button></div></div>
+
+        <div class="page" id="page3"><div class="kicker">Теория · 2 из 6</div><div class="hero-icon-small">⚠️</div><div class="title"><span>Почему</span> это важно именно сейчас?</div><div class="divider-thick"></div><div class="text-block">Мы ежедневно сталкиваемся с <strong>лавиной противоречивой информации</strong>: соцсети, мессенджеры, новости, реклама — всё обрушивается одновременно.</div><div class="stats-row"><div class="stat-card"><div class="s-num" data-n="60" data-suf="%">60%</div><div class="s-label">делятся новостями, не проверив источник</div></div><div class="stat-card pink"><div class="s-num" data-n="6.5" data-d="1" data-suf=" сек">6,5 сек</div><div class="s-label">среднее время удержания внимания</div></div><div class="stat-card orange"><div class="s-num" data-n="7" data-suf=" из 10">7 из 10</div><div class="s-label">школьников не отличают фейк от факта</div></div></div><div class="bar-row"><div class="bar-label"><span>Попадались на фейки</span><strong>72%</strong></div><div class="bar-track"><div class="bar-fill" style="width:72%;"></div></div></div><div class="bar-row"><div class="bar-label"><span>Проверяют источник перед репостом</span><strong>28%</strong></div><div class="bar-track"><div class="bar-fill" style="width:28%;"></div></div></div><div class="features-grid" style="grid-template-columns:repeat(3,1fr);max-width:760px"><div class="feature-card"><span class="f-icon">📱</span><div class="f-text">Соцсети</div><div class="s-label">Лента показывает то, что цепляет, а не то, что правда.</div></div><div class="feature-card"><span class="f-icon">🎣</span><div class="f-text">Кликбейт</div><div class="s-label">Громкий заголовок ради клика: «ШОК! Ты не поверишь…»</div></div><div class="feature-card"><span class="f-icon">🏃</span><div class="f-text">Скорость фейков</div><div class="s-label">Эмоциональная ложь расходится быстрее скучной правды.</div></div></div><div class="quote">«Тот, кто управляет информацией, управляет решениями. Умей проверять — и ты свободен.»</div><div class="nav-buttons"><button class="btn secondary" onclick="goToPage(2)">← Назад</button><button class="btn" onclick="goToPage(4)">Далее →</button></div></div>
+
+        <div class="page" id="page4"><div class="kicker">Теория · 3 из 6</div><div class="hero-icon-small">🧬</div><div class="title"><span>Факт, мнение</span> или фейк?</div><div class="divider-thick"></div><div class="features-grid" style="grid-template-columns:repeat(3,1fr);max-width:760px"><div class="feature-card"><span class="f-icon">📊</span><div class="f-text">ФАКТ</div><div class="s-label">Можно проверить, не зависит от чувств. «Эверест — 8849 м над уровнем моря».</div></div><div class="feature-card"><span class="f-icon">💭</span><div class="f-text">МНЕНИЕ</div><div class="s-label">Оценка и вкус, у каждого своё. «Эта игра лучше той».</div></div><div class="feature-card"><span class="f-icon">🕵️</span><div class="f-text">ФЕЙК</div><div class="s-label">Ложь под видом правды. «С 1 января WhatsApp станет платным».</div></div></div><div class="badge-row"><span class="badge green">✅ Проверяется → факт</span><span class="badge orange">💭 Это оценка → мнение</span><span class="badge pink">🚫 Проверка не проходит → фейк</span></div><div class="quote">Правило: если нельзя проверить — это не факт.</div><div class="text-block">Мнение — не плохо! Проблема начинается, когда <strong>мнение выдают за факт</strong>: «Все знают, что эта группа — мусор».</div><div class="nav-buttons"><button class="btn secondary" onclick="goToPage(3)">← Назад</button><button class="btn" onclick="goToPage(11)">Далее →</button></div></div>
+
+        <div class="page" id="page11"><div class="kicker">Теория · 4 из 6</div><div class="hero-icon-small">🎭</div><div class="title">Как работает <span>манипуляция</span></div><div class="divider-thick"></div><div class="text-block">Манипулятор не доказывает — он <strong>давит на эмоции</strong>, чтобы ты не успел подумать. Вот 6 любимых приёмов:</div><div class="features-grid" style="grid-template-columns:repeat(3,1fr);max-width:760px"><div class="feature-card"><span class="f-icon">😱</span><div class="f-text">Эмоциональная накачка</div><div class="s-label">«ШОК! Это скрывают от тебя!»</div></div><div class="feature-card"><span class="f-icon">⚖️</span><div class="f-text">Ложная дилемма</div><div class="s-label">«Не подписался на канал — не настоящий фанат».</div></div><div class="feature-card"><span class="f-icon">👨‍🔬</span><div class="f-text">Апелляция к авторитету</div><div class="s-label">«Учёные доказали!» — без имён и ссылок.</div></div><div class="feature-card"><span class="f-icon">👥</span><div class="f-text">Социальное доказательство</div><div class="s-label">«Весь класс уже играет. А ты?»</div></div><div class="feature-card"><span class="f-icon">⏳</span><div class="f-text">Искусственный дефицит</div><div class="s-label">«Осталось 2 места! Акция только сегодня!»</div></div><div class="feature-card"><span class="f-icon">🔄</span><div class="f-text">Перевод стрелок</div><div class="s-label">«Не веришь блогеру? Просто завидуешь».</div></div></div><div class="quote">Если текст заставляет тебя злиться, бояться или спешить — остановись и проверь.</div><div class="nav-buttons"><button class="btn secondary" onclick="goToPage(4)">← Назад</button><button class="btn" onclick="goToPage(12)">Далее →</button></div></div>
+
+        <div class="page" id="page12"><div class="kicker">Теория · 5 из 6</div><div class="hero-icon-small">🧩</div><div class="title"><span>Логические</span> ошибки</div><div class="divider-thick"></div><div class="text-block">Бывает, что факты верные, а вывод — нет. Вот 5 ловушек рассуждения:</div><div class="features-grid" style="grid-template-columns:repeat(3,1fr);max-width:760px"><div class="feature-card"><span class="f-icon">🔗</span><div class="f-text">После ≠ из-за</div><div class="s-label">«Надел счастливые носки — получил пятёрку. Носки помогли!»</div></div><div class="feature-card"><span class="f-icon">🏃</span><div class="f-text">Поспешное обобщение</div><div class="s-label">«Двое геймеров плохо учатся → все геймеры двоечники».</div></div><div class="feature-card"><span class="f-icon">🔄</span><div class="f-text">Обратное следование</div><div class="s-label">«Все программисты умные. Я умный → я программист».</div></div><div class="feature-card"><span class="f-icon">🎯</span><div class="f-text">Переход на личности</div><div class="s-label">«Сам двоечник, твоё мнение о школе не считается».</div></div><div class="feature-card"><span class="f-icon">👥</span><div class="f-text">Апелляция к большинству</div><div class="s-label">«Все смотрят этот сериал, значит он хороший».</div></div><div class="feature-card"><span class="f-icon">🧐</span><div class="f-text">Как проверить?</div><div class="s-label">Спроси: из А правда следует Б? Или это только совпадение?</div></div></div><div class="nav-buttons"><button class="btn secondary" onclick="goToPage(11)">← Назад</button><button class="btn" onclick="goToPage(13)">Далее →</button></div></div>
+
+        <div class="page" id="page13"><div class="kicker">Теория · 6 из 6</div><div class="hero-icon-small">🛡️</div><div class="title">Памятка: <span>прежде чем поверить</span></div><div class="divider-thick"></div><div class="signs-grid" style="grid-template-columns:1fr"><div class="sign-item"><span class="n">1</span><span class="s-text"><strong>СТОП.</strong> Не реагируй сразу. Эмоции — сигнал тревоги.</span></div><div class="sign-item"><span class="n">2</span><span class="s-text"><strong>ИСТОЧНИК.</strong> Кто автор и можно ли ему доверять?</span></div><div class="sign-item"><span class="n">3</span><span class="s-text"><strong>ДОКАЗАТЕЛЬСТВА.</strong> Где факты, цифры, ссылки?</span></div><div class="sign-item"><span class="n">4</span><span class="s-text"><strong>ПЕРЕПРОВЕРЬ.</strong> Пишут ли об этом другие надёжные источники?</span></div><div class="sign-item"><span class="n">5</span><span class="s-text"><strong>ВЫВОД.</strong> Факт, мнение или манипуляция? Только потом — репост.</span></div></div><div class="text-block" style="text-align:center;margin-top:12px"><strong>В играх ты прокачаешь:</strong></div><div class="features-grid" style="grid-template-columns:repeat(3,1fr);max-width:760px"><div class="feature-card"><span class="f-icon">🔍</span><div class="f-text">Распознавание манипуляций</div></div><div class="feature-card"><span class="f-icon">📚</span><div class="f-text">Структурирование данных</div></div><div class="feature-card"><span class="f-icon">⚖️</span><div class="f-text">Решения на основе фактов</div></div><div class="feature-card"><span class="f-icon">🎯</span><div class="f-text">Концентрация внимания</div></div><div class="feature-card"><span class="f-icon">🗣️</span><div class="f-text">Аргументация в диалоге</div></div><div class="feature-card"><span class="f-icon">🧩</span><div class="f-text">Логическое мышление</div></div></div><div class="nav-buttons"><button class="btn secondary" onclick="goToPage(12)">← Назад</button><button class="btn primary" onclick="goToPage(5)">🎮 К ИГРАМ</button></div></div>
+
+        <div class="page" id="page5">
+            <div class="hero-icon-small">🎮</div>
+            <div class="title"><span>Выбери</span> режим игры</div>
+            <div class="subtitle">Тренируйся один или работай в паре с другом.</div>
+            <div class="mode-grid">
+                <div class="mode-card" onclick="selectMode('solo')">
+                    <span class="m-icon">🧠</span>
+                    <div class="m-title">Индивидуально</div>
+                    <div class="m-desc">8 игр для самостоятельной тренировки</div>
+                </div>
+                <div class="mode-card" onclick="selectMode('pair')">
+                    <span class="m-icon">👥</span>
+                    <div class="m-title">В паре</div>
+                    <div class="m-desc">3 игры для двоих на одном устройстве</div>
+                </div>
+            </div>
+            <div class="nav-buttons">
+                <button class="btn secondary" onclick="goToPage(13)">← Назад</button>
+            </div>
+        </div>
+
+        <div class="page" id="page6">
+            <div class="title"><span>Список</span> игр</div>
+            <div class="subtitle" id="modeLabel"></div>
+            <div class="game-grid" id="gameGrid"></div>
+            <div class="nav-buttons">
+                <button class="btn secondary" onclick="goToPage(5)">← Назад</button>
+            </div>
+        </div>
+
+        <div class="page" id="page7">
+            <div class="game-header">
+                <span>Очки: <span class="score" id="scoreDisplay">0</span></span>
+                <span id="headerExtra"></span>
+                <span>Ошибки: <span class="errors" id="errorsDisplay">0</span></span>
+            </div>
+            <div class="progress-bar" id="progressBar" style="display:none;">
+                <div class="progress-fill" id="progressFill" style="width:0%"></div>
+            </div>
+            <div id="gameContent" style="width:100%; display:flex; flex-direction:column; align-items:center;"></div>
+            <button class="btn secondary" id="quitGameBtn" style="margin-top:20px; font-size:0.85rem; padding:8px 20px;">✕ Выйти из игры</button>
+        </div>
+
+        <div class="page" id="page8">
+            <div class="result-box">
+                <div class="hero-icon-small" id="resultIcon">🏆</div>
+                <h2>Твой результат</h2>
+                <div class="big-score" id="finalScore">0</div>
+                <div class="rank" id="finalRank">—</div>
+                <div class="verdict" id="finalVerdict">—</div>
+                <div class="stats">
+                    <div>Верных ответов: <span id="finalCorrect">0</span></div>
+                    <div>Ошибок: <span id="finalErrors">0</span></div>
+                </div>
+                <button class="btn primary full" id="retryBtn" style="margin-bottom:10px;">🔄 Пройти снова</button>
+                <button class="btn full" id="backToGamesBtn">🎮 К списку игр</button>
+                <button class="btn secondary full" id="homeBtn" style="margin-top:10px;">🏠 На главную</button>
+            </div>
+        </div>
+
+        <div class="page" id="page9">
+            <div class="detail-wrap" id="detailContent"></div>
+            <div class="nav-buttons">
+                <button class="btn primary" id="backToGameBtn">← Вернуться к игре</button>
+            </div>
+        </div>
+
+        <div class="page" id="page10">
+            <div class="hero-icon-small">🛡️</div>
+            <div class="title"><span>Памятка</span> на всю жизнь</div>
+            <div class="subtitle">Отмечай пункты. Соберёшь все 5 — получишь иммунитет к фейкам.</div>
+            <div class="memo" id="memo">
+                <div class="memo-step"><b>1</b><div><strong>СТОП.</strong> Не реагируй сразу. Сильные эмоции — повод насторожиться.</div></div>
+                <div class="memo-step"><b>2</b><div><strong>ИСТОЧНИК.</strong> Кто автор? Можно ли ему доверять?</div></div>
+                <div class="memo-step"><b>3</b><div><strong>ДОКАЗАТЕЛЬСТВА.</strong> Где факты, цифры, ссылки, даты?</div></div>
+                <div class="memo-step"><b>4</b><div><strong>ПЕРЕПРОВЕРЬ.</strong> Пишут ли об этом другие надёжные источники?</div></div>
+                <div class="memo-step"><b>5</b><div><strong>ВЫВОД.</strong> Это факт, мнение или манипуляция? Только потом — репост.</div></div>
+            </div>
+            <div class="game-question" style="margin:16px 0 8px">🏅 Твои достижения</div>
+            <div class="ach" id="achGrid"></div>
+            <div class="nav-buttons"><button class="btn secondary" onclick="goToPage(6)">🎮 К играм</button><button class="btn primary" onclick="goToPage(1)">🏠 На главную</button></div>
+        </div>
+
+        </div>
+</div>
+
+<script>
+const totalPages = 20;
+function goToPage(n) {
+    if (n < 1 || n > totalPages) return;
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    const pg = document.getElementById('page' + n);
+    if (pg) pg.classList.add('active');
+    const c = document.querySelector('.container');
+    if (c) c.scrollTop = 0;
+}
+
+let audioCtx = null;
+function initAudio() { if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)(); }
+function beep(freq, dur, type='sine', vol=0.15) {
+    if (window.muted) return;
+    try { initAudio();
+        const o = audioCtx.createOscillator(), g = audioCtx.createGain();
+        o.type = type; o.frequency.value = freq;
+        g.gain.setValueAtTime(vol, audioCtx.currentTime);
+        g.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+        o.connect(g); g.connect(audioCtx.destination);
+        o.start(); o.stop(audioCtx.currentTime + dur);
+    } catch(e) {}
+}
+function sCorrect() { beep(880, 0.1); }
+function sWrong() { beep(200, 0.2, 'sawtooth', 0.15); }
+function sClick() { beep(700, 0.03); }
+function sWin() { for (let i = 0; i < 5; i++) setTimeout(() => beep(600 + i*80, 0.08), i*70); }
+
+const state = {
+    mode: null, game: null, score: 0, errors: 0, correct: 0,
+    totalRounds: 0, currentRound: 0, data: {}, timer: null,
+    feedbackTimeout: null, currentItem: null, returnPage: 7,
+};
+
+const SOLO_GAMES = [
+    { id: 'fake',    icon: '🕵️', title: 'Фейк или факт',        desc: 'Правда или ложь? Проверь себя' },
+    { id: 'opinion', icon: '⚖️', title: 'Факт или мнение',       desc: 'Где объективный факт, а где чьё-то мнение' },
+    { id: 'sort',    icon: '🧲', title: 'Сортировка',            desc: 'Раскидай карточки по трём корзинам' },
+    { id: 'race',    icon: '⚡', title: 'Гонка на время',        desc: '15 вопросов за 90 секунд. Успей!' },
+    { id: 'manip',   icon: '🎭', title: 'Манипуляция',           desc: 'Найди приём, которым тебя ведут' },
+    { id: 'slider',  icon: '📱', title: 'Фейк в ленте',          desc: 'Найди все подозрительные фразы в пересланном сообщении' },
+    { id: 'logic',   icon: '🧩', title: 'Логическая ошибка',    desc: 'Где сломалось рассуждение' },
+    { id: 'fixarg',  icon: '🛠️', title: 'Почини аргумент',      desc: 'Перепиши сломанную мысль (или скипни)' },
+];
+const PAIR_GAMES = [
+    { id: 'twotruths', icon: '🎭', title: '2 правды, 1 ложь',  desc: 'Игрок 1 загадывает — Игрок 2 угадывает' },
+    { id: 'brainstorm', icon: '💡', title: 'Мозговой штурм',    desc: 'Вдвоём придумайте аргументы за 60 секунд' },
+    { id: 'argupong',   icon: '🏓', title: 'Пинг-понг аргументов', desc: 'По очереди приводите аргументы' },
+];
+
+function selectMode(mode) {
+    sClick(); state.mode = mode; renderGameList(); goToPage(6);
+}
+
+function renderGameList() {
+    const list = state.mode === 'pair' ? PAIR_GAMES : SOLO_GAMES;
+    document.getElementById('modeLabel').innerHTML = state.mode === 'pair'
+        ? '👥 Парный режим — играйте вдвоём на одном устройстве'
+        : '🧠 Индивидуальный режим — тренируйся один';
+    const grid = document.getElementById('gameGrid');
+    grid.innerHTML = '';
+    list.forEach(g => {
+        const card = document.createElement('div');
+        card.className = 'game-card';
+        card.innerHTML = `<span class="g-icon">${g.icon}</span><div class="g-content"><div class="g-title">${g.title}</div><div class="g-desc">${g.desc}</div></div>`;
+        card.addEventListener('click', () => { sClick(); launchGame(g.id); });
+        grid.appendChild(card);
+    });
+}
+
+function resetState() {
+    state.score = 0; state.errors = 0; state.correct = 0;
+    state.currentRound = 0; state.totalRounds = 0; state.data = {};
+    if (state.timer) { clearInterval(state.timer); state.timer = null; }
+    if (state.feedbackTimeout) { clearTimeout(state.feedbackTimeout); state.feedbackTimeout = null; }
+    document.getElementById('scoreDisplay').textContent = '0';
+    document.getElementById('errorsDisplay').textContent = '0';
+    document.getElementById('headerExtra').textContent = '';
+}
+
+function launchGame(id) {
+    resetState(); state.game = id; state.returnPage = 7; goToPage(7);
+    document.getElementById('gameContent').innerHTML = '';
+    document.getElementById('progressBar').style.display = 'none';
+
+    switch (id) {
+        case 'fake':       startFakeGame(); break;
+        case 'opinion':    startOpinionGame(); break;
+        case 'manip':      startManipGame(); break;
+        case 'logic':      startLogicGame(); break;
+        case 'sort':       startSortGame(); break;
+        case 'race':       startRaceGame(); break;
+        case 'slider':     startFeedGame(); break;
+        case 'fixarg':     startFixArgGame(); break;
+        case 'twotruths':  startTwoTruthsGame(); break;
+        case 'brainstorm': startBrainstormGame(); break;
+        case 'argupong':   startArguPongGame(); break;
+    }
+}
+
+/* ==================== ФЕЙК ИЛИ ФАКТ ==================== */
+const FAKE_DATA = [
+    {
+        text: 'СРОЧНО! WhatsApp становится платным. Перешли это сообщение 10 друзьям — и останешься бесплатным навсегда!',
+        isFake: true,
+        why: 'Классический развод. WhatsApp бесплатный и не собирается вводить оплату.',
+        detail: 'Это сообщение гуляет по мессенджерам с 2012 года. WhatsApp (принадлежит Meta) зарабатывает на бизнес-аккаунтах и рекламе, а не на подписке. Если бы приложение стало платным, об этом написали бы в официальном блоге. Пересылки ничего не меняют — это просто спам.',
+        sourceName: 'Официальный блог WhatsApp', sourceType: 'Официальный источник', sourceUrl: 'https://blog.whatsapp.com/'
+    },
+    {
+        text: 'Великую Китайскую стену видно из космоса невооружённым глазом.',
+        isFake: true,
+        why: 'Миф. Стена слишком узкая, чтобы её было видно с орбиты без оптики.',
+        detail: 'Этот миф появился ещё до полётов в космос. На самом деле стену видно только с низкой орбиты и только при определённых условиях — с помощью камер. Китайский тайконавт Ян Ливэй в 2003 году подтвердил: невооружённым глазом стену из космоса не видно.',
+        sourceName: 'NASA', sourceType: 'Официальный источник', sourceUrl: 'https://www.nasa.gov/'
+    },
+    {
+        text: 'У осьминога три сердца и голубая кровь.',
+        isFake: false,
+        why: 'Правда. У осьминога три сердца и кровь на основе гемоцианина (медь).',
+        detail: 'Одно сердце гонит кровь по телу, два других — через жабры. Кровь голубая, потому что в ней не гемоглобин с железом, как у нас, а гемоцианин с медью. Это делает её более эффективной в холодной воде с низким содержанием кислорода.',
+        sourceName: 'National Geographic', sourceType: 'Научно-популярный источник', sourceUrl: 'https://www.nationalgeographic.com/'
+    },
+    {
+        text: 'Первая версия Minecraft вышла в 2009 году.',
+        isFake: false,
+        why: 'Правда. Первая публичная альфа-версия — 17 мая 2009 года.',
+        detail: 'Minecraft создал шведский программист Маркус Персон (Notch). Первая публичная альфа появилась 17 мая 2009 года. Полная версия 1.0 вышла 18 ноября 2011 года. С тех пор игра стала самой продаваемой в истории — более 300 миллионов копий.',
+        sourceName: 'Mojang / Microsoft', sourceType: 'Официальный источник', sourceUrl: 'https://www.minecraft.net/'
+    },
+    {
+        text: 'Мы используем только 10% мозга.',
+        isFake: true,
+        why: 'Миф. Мы используем весь мозг, просто разные участки — в разное время.',
+        detail: 'Этот миф появился в начале XX века и до сих пор популярен. На самом деле МРТ показывает: даже во время простых задач активны почти все отделы мозга. Если бы мы использовали только 10%, повреждение остальных 90% не влияло бы ни на что — но это не так.',
+        sourceName: 'Scientific American', sourceType: 'Научно-популярный журнал', sourceUrl: 'https://www.scientificamerican.com/'
+    },
+    {
+        text: 'TikTok платит по 1000 рублей за каждое видео с 1000 просмотров.',
+        isFake: true,
+        why: 'Нет. Такого нет. TikTok платит только через Creator Rewards и только в некоторых странах.',
+        detail: 'TikTok никогда не платил «за каждое видео с 1000 просмотров». Есть программа Creator Rewards — но там сложные условия: от 10 000 подписчиков, от 100 000 просмотров в месяц, и только для некоторых стран. В России эта программа не работает.',
+        sourceName: 'TikTok Creator Rewards', sourceType: 'Официальный источник', sourceUrl: 'https://www.tiktok.com/creators/'
+    },
+    {
+        text: 'Скорость света в вакууме — примерно 300 000 километров в секунду.',
+        isFake: false,
+        why: 'Правда. Точное значение — 299 792 458 м/с.',
+        detail: 'Это фундаментальная физическая константа, обозначается буквой c. В 1983 году Международное бюро мер и весов закрепило её как точное значение. На нём основано определение метра.',
+        sourceName: 'BIPM', sourceType: 'Официальный источник', sourceUrl: 'https://www.bipm.org/'
+    },
+    {
+        text: 'В CS2 скины могут стоить дороже автомобиля.',
+        isFake: false,
+        why: 'Правда. Самые редкие скины продаются за десятки тысяч долларов.',
+        detail: 'Например, нож Karambit Case Hardened с синим паттерном продавался за 1,5 миллиона долларов. Скин AWP Dragon Lore стоит от 10 000 до 100 000 долларов в зависимости от состояния. Это официальный рынок Steam.',
+        sourceName: 'Steam Community Market', sourceType: 'Официальная площадка', sourceUrl: 'https://steamcommunity.com/market/'
+    },
+    {
+        text: 'Молния никогда не бьёт в одно и то же место дважды.',
+        isFake: true,
+        why: 'Миф. Молния часто бьёт в одно место, особенно в высокие объекты.',
+        detail: 'Например, Эмпайр-стейт-билдинг в Нью-Йорке получает удары молний в среднем 23 раза в год. Останкинская башня в Москве — около 30 раз в год. Это миф, который легко опровергается статистикой.',
+        sourceName: 'National Weather Service (США)', sourceType: 'Официальный источник', sourceUrl: 'https://www.weather.gov/'
+    },
+    {
+        text: 'Эверест — самая высокая гора на Земле.',
+        isFake: false,
+        why: 'Правда. 8849 метров над уровнем моря.',
+        detail: 'Эверест (Джомолунгма) — 8849 метров. Это высочайшая точка планеты над уровнем моря. Правда, если считать от подножия до вершины, то самая высокая гора — Мауна-Кеа на Гавайях (более 10 000 метров, но большая часть под водой).',
+        sourceName: 'National Geographic', sourceType: 'Научно-популярный источник', sourceUrl: 'https://www.nationalgeographic.com/'
+    },
+];
+
+function startFakeGame() {
+    state.totalRounds = FAKE_DATA.length;
+    state.data.items = [...FAKE_DATA].sort(() => Math.random() - 0.5);
+    renderFakeRound();
+}
+
+function renderFakeRound() {
+    if (state.currentRound >= state.totalRounds) return finishGame();
+    const item = state.data.items[state.currentRound];
+    state.currentItem = {
+        ...item,
+        type: item.isFake ? 'fake' : 'fact',
+        typeLabel: item.isFake ? 'Фейк' : 'Факт',
+        typeIcon: item.isFake ? '🕵️' : '✅'
+    };
+    showProgress();
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="game-question">Это утверждение — фейк или факт?</div>
+        <div class="game-text">${item.text}</div>
+        <div class="answer-grid two">
+            <button class="answer-btn" data-ans="fake">🕵️ Фейк</button>
+            <button class="answer-btn" data-ans="fact">✅ Факт</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    const btns = content.querySelectorAll('.answer-btn');
+    btns.forEach(btn => btn.addEventListener('click', () => {
+        if (btns[0].disabled) return;
+        const chosen = btn.dataset.ans === 'fake';
+        const correct = chosen === item.isFake;
+        btns.forEach(b => b.disabled = true);
+        if (correct) {
+            btn.classList.add('correct'); sCorrect();
+            state.score += 15; state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+        } else {
+            btn.classList.add('wrong'); sWrong();
+            state.errors++;
+            document.getElementById('errorsDisplay').textContent = state.errors;
+            btns.forEach(b => { if ((b.dataset.ans === 'fake') === item.isFake) b.classList.add('correct'); });
+        }
+        showFeedback(item, correct);
+    }));
+}
+
+function showFeedback(item, correct, customHtml) {
+    const fb = document.getElementById('feedback');
+    if (!fb) return;
+    fb.className = 'feedback show ' + (correct ? 'good' : 'bad');
+    if (customHtml) { fb.innerHTML = customHtml; return; }
+    fb.innerHTML = `
+        <strong>${correct ? '✅ Верно!' : '❌ Ошибка.'}</strong> ${item.why}
+        <div class="fb-actions">
+            <button class="btn" id="detailBtn">📖 Подробнее</button>
+            <button class="btn primary" id="nextBtn">Дальше →</button>
+        </div>
+    `;
+    document.getElementById('detailBtn').addEventListener('click', () => {
+        openDetailPage();
+    });
+    document.getElementById('nextBtn').addEventListener('click', () => {
+        state.currentRound++;
+        if (state.currentRound >= state.totalRounds) finishGame();
+        else nextRoundOfCurrentGame();
+    });
+}
+
+function nextRoundOfCurrentGame() {
+    switch (state.game) {
+        case 'fake':       renderFakeRound(); break;
+        case 'opinion':    renderOpinionRound(); break;
+        case 'manip':      renderManipRound(); break;
+        case 'logic':      renderLogicRound(); break;
+        default: finishGame();
+    }
+}
+
+function openDetailPage() {
+    const item = state.currentItem;
+    if (!item) return;
+    state.returnPage = 7;
+    const detail = document.getElementById('detailContent');
+
+    detail.innerHTML = `
+        <div class="detail-head">
+            <div class="detail-icon">${item.typeIcon || '📖'}</div>
+            <div class="detail-type ${item.type}">${item.typeLabel || 'Информация'}</div>
+        </div>
+        <div class="detail-statement">${item.text}</div>
+        <div class="detail-block">
+            <h3>💡 В чём суть</h3>
+            <p>${item.why || ''}</p>
+        </div>
+        <div class="detail-block">
+            <h3>📖 Подробнее</h3>
+            <p>${item.detail || item.why || 'Информация скоро появится.'}</p>
+        </div>
+        ${item.sourceName ? `
+        <div class="detail-block">
+            <h3>📚 Источник</h3>
+            <p><strong>${item.sourceName}</strong>${item.sourceType ? ' — ' + item.sourceType : ''}</p>
+            ${item.sourceUrl ? `<p style="margin-top:8px;"><a href="${item.sourceUrl}" target="_blank" rel="noopener">🔗 ${item.sourceUrl}</a></p>` : ''}
+        </div>
+        ` : ''}
+    `;
+    goToPage(9);
+}
+
+/* ==================== ФАКТ ИЛИ МНЕНИЕ ==================== */
+const OPINION_DATA = [
+    { text: 'Земля вращается вокруг Солнца.', type: 'fact', typeLabel: 'Факт', typeIcon: '✅',
+      why: 'Проверяемый объективный факт, подтверждённый наукой.',
+      detail: 'Гелиоцентрическая модель подтверждена наблюдениями Галилея, Кеплера и Ньютона. Сегодня это фундаментальный факт астрономии.',
+      sourceName: 'NASA', sourceType: 'Официальный источник', sourceUrl: 'https://www.nasa.gov/' },
+    { text: 'Пицца вкуснее суши.', type: 'opinion', typeLabel: 'Мнение', typeIcon: '💭',
+      why: 'Вкус — субъективное ощущение. У каждого своё.',
+      detail: 'Вкус формируется на основе личного опыта, культуры, генетики. Фразу «вкуснее» нельзя проверить измерениями.',
+      sourceName: null, sourceType: null, sourceUrl: null },
+    { text: 'В 1961 году Юрий Гагарин первым полетел в космос.', type: 'fact', typeLabel: 'Факт', typeIcon: '✅',
+      why: 'Исторический факт с точной датой.',
+      detail: '12 апреля 1961 года Гагарин совершил первый пилотируемый полёт на корабле «Восток-1». Полёт длился 108 минут. Это зафиксировано в архивах и признано во всём мире.',
+      sourceName: 'Роскосмос', sourceType: 'Официальный источник', sourceUrl: 'https://www.roscosmos.ru/' },
+    { text: 'Minecraft — самая продаваемая игра в истории.', type: 'fact', typeLabel: 'Факт', typeIcon: '✅',
+      why: 'Это проверяемый факт — более 300 млн проданных копий.',
+      detail: 'По данным Mojang и Microsoft, Minecraft продан тиражом более 300 миллионов копий. Это делает его самой продаваемой игрой в истории, обогнав Tetris и GTA V.',
+      sourceName: 'Mojang / Microsoft', sourceType: 'Официальный источник', sourceUrl: 'https://www.minecraft.net/' },
+    { text: 'Dota 2 лучше, чем League of Legends.', type: 'opinion', typeLabel: 'Мнение', typeIcon: '💭',
+      why: 'Это вкусовщина. Игры сравнивают по разным критериям.',
+      detail: 'У каждой игры своя аудитория, механики, стиль. Фраза «лучше» без критерия — личное мнение, а не факт.',
+      sourceName: null, sourceType: null, sourceUrl: null },
+    { text: 'Москва — столица Российской Федерации.', type: 'fact', typeLabel: 'Факт', typeIcon: '✅',
+      why: 'Официальный факт, закреплённый в Конституции.',
+      detail: 'Согласно статье 70 Конституции РФ, столицей является город Москва. Это закреплено юридически и признано на международном уровне.',
+      sourceName: 'Конституция РФ', sourceType: 'Официальный документ', sourceUrl: 'http://pravo.gov.ru/' },
+    { text: 'Аниме интереснее, чем западные сериалы.', type: 'opinion', typeLabel: 'Мнение', typeIcon: '💭',
+      why: 'Вкусовое сравнение. Не проверяется.',
+      detail: '«Интереснее» — это субъективная оценка. Кому-то нравится аниме, кому-то — сериалы, кому-то и то и другое. Нельзя измерить «интересность» в цифрах.',
+      sourceName: null, sourceType: null, sourceUrl: null },
+    { text: 'YouTube был основан в 2005 году.', type: 'fact', typeLabel: 'Факт', typeIcon: '✅',
+      why: 'Точная дата основания — 14 февраля 2005 года.',
+      detail: 'YouTube создали Чад Хёрли, Стив Чен и Джавед Карим. Первое видео «Me at the zoo» загрузили 23 апреля 2005 года.',
+      sourceName: 'YouTube', sourceType: 'Официальный источник', sourceUrl: 'https://www.youtube.com/' },
+    { text: 'Мемы — это искусство.', type: 'opinion', typeLabel: 'Мнение', typeIcon: '💭',
+      why: 'Оценочное суждение, не проверяется.',
+      detail: 'Кто-то считает мемы искусством XXI века, кто-то — просто шутками. Это зависит от определения «искусства».',
+      sourceName: null, sourceType: null, sourceUrl: null },
+    { text: 'В 1861 году в России отменили крепостное право.', type: 'fact', typeLabel: 'Факт', typeIcon: '✅',
+      why: 'Исторический факт с точной датой.',
+      detail: 'Манифест об отмене крепостного права подписал Александр II 3 марта (19 февраля по старому стилю) 1861 года. Это одна из ключевых реформ XIX века.',
+      sourceName: 'Большая российская энциклопедия', sourceType: 'Справочник', sourceUrl: 'https://bigenc.ru/' },
+];
+
+function startOpinionGame() {
+    state.totalRounds = OPINION_DATA.length;
+    state.data.items = [...OPINION_DATA].sort(() => Math.random() - 0.5);
+    renderOpinionRound();
+}
+
+function renderOpinionRound() {
+    if (state.currentRound >= state.totalRounds) return finishGame();
+    const item = state.data.items[state.currentRound];
+    state.currentItem = item;
+    showProgress();
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="game-question">Это утверждение — факт или мнение?</div>
+        <div class="game-text">${item.text}</div>
+        <div class="answer-grid two">
+            <button class="answer-btn" data-ans="fact">📊 Факт</button>
+            <button class="answer-btn" data-ans="opinion">💭 Мнение</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    const btns = content.querySelectorAll('.answer-btn');
+    btns.forEach(btn => btn.addEventListener('click', () => {
+        if (btns[0].disabled) return;
+        const chosen = btn.dataset.ans;
+        const correct = chosen === item.type;
+        btns.forEach(b => b.disabled = true);
+        if (correct) {
+            btn.classList.add('correct'); sCorrect();
+            state.score += 15; state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+        } else {
+            btn.classList.add('wrong'); sWrong();
+            state.errors++;
+            document.getElementById('errorsDisplay').textContent = state.errors;
+            btns.forEach(b => { if (b.dataset.ans === item.type) b.classList.add('correct'); });
+        }
+        showFeedback(item, correct);
+    }));
+}
+
+/* ==================== МАНИПУЛЯЦИЯ ==================== */
+const MANIP_DATA = [
+    {
+        text: '«ШОК! Врачи скрывают от нас простой способ вылечить любую болезнь!»',
+        options: ['Давление на эмоции (шок, страх)', 'Ссылка на авторитет', 'Ложная дилемма', 'Подмена тезиса'],
+        correct: 0,
+        type: 'manip', typeLabel: 'Манипуляция', typeIcon: '🎭',
+        why: 'Слова «ШОК», «скрывают» вызывают эмоции и отключают критическое мышление.',
+        detail: 'Приём «эмоциональная накачка»: сначала сильная эмоция, потом «решение». В таком состоянии мозг не проверяет факты. Если видишь «ШОК» и «скрывают» — это уже красный флаг.',
+        sourceName: 'Р. Чалдини, «Психология влияния»', sourceType: 'Книга по психологии', sourceUrl: null
+    },
+    {
+        text: '«9 из 10 стоматологов рекомендуют эту пасту!»',
+        options: ['Давление на эмоции', 'Ссылка на авторитет / статистика без источника', 'Ложная причина', 'Обобщение'],
+        correct: 1,
+        type: 'manip', typeLabel: 'Манипуляция', typeIcon: '🎭',
+        why: 'Непонятно, кто эти 9 из 10, кто и как проводил опрос.',
+        detail: '«Апелляция к авторитету»: приём строится на доверии к «специалистам». Без конкретики (кто, когда, сколько людей) — пустая фраза. В реальных исследованиях указывают методологию и источники финансирования.',
+        sourceName: 'Ф. Котлер, «Основы маркетинга»', sourceType: 'Учебник по маркетингу', sourceUrl: null
+    },
+    {
+        text: '«Либо ты с нами, либо ты против нас!»',
+        options: ['Ссылка на авторитет', 'Ложная дилемма', 'Призыв к традиции', 'Смещение акцента'],
+        correct: 1,
+        type: 'manip', typeLabel: 'Манипуляция', typeIcon: '🎭',
+        why: 'Ложная дилемма: будто есть только два варианта.',
+        detail: 'Приём «ложная дилемма» (чёрно-белое мышление). Слушателю навязывают, что мир делится только на две категории. На самом деле вариантов больше. Цель — заставить занять сторону, не разбираясь в деталях.',
+        sourceName: 'А. Ивин, «Логика»', sourceType: 'Учебник по логике', sourceUrl: null
+    },
+    {
+        text: '«Только сегодня! Последний шанс купить курс со скидкой 90%! Завтра будет поздно!»',
+        options: ['Искусственный дефицит + срочность', 'Ссылка на науку', 'Ложная причина', 'Подмена понятий'],
+        correct: 0,
+        type: 'manip', typeLabel: 'Манипуляция', typeIcon: '🎭',
+        why: 'Давление срочностью — чтобы ты не успел подумать.',
+        detail: 'Приём «искусственный дефицит»: «только сегодня», «последний шанс», «завтра поздно». Цель — вызвать панику и заставить купить не думая. Часто «акция» повторяется каждый день — это развод.',
+        sourceName: 'Р. Чалдини, «Психология влияния»', sourceType: 'Книга по психологии', sourceUrl: null
+    },
+    {
+        text: '«Учёные доказали, что это работает. Не веришь учёным?»',
+        options: ['Давление на эмоции', 'Ссылка на авторитет без конкретики + перевод стрелок', 'Ложная причина', 'Обобщение'],
+        correct: 1,
+        type: 'manip', typeLabel: 'Манипуляция', typeIcon: '🎭',
+        why: '«Учёные доказали» — пустая формула без имён. «Не веришь учёным?» — перевод стрелок.',
+        detail: 'Первый приём — апелляция к авторитету без конкретики. Второй — перевод стрелок: вместо доказательства вам задают вопрос о вашей личности. Грамотный ответ: «Какие именно учёные, где опубликовано исследование?»',
+        sourceName: 'European Commission, Fighting Disinformation', sourceType: 'Аналитический отчёт', sourceUrl: 'https://ec.europa.eu/'
+    },
+    {
+        text: '«Скинь это сообщение 5 друзьям, иначе тебя ждёт неудача весь год!»',
+        options: ['Давление на страх + суеверие', 'Ссылка на науку', 'Ложная причина', 'Подмена понятий'],
+        correct: 0,
+        type: 'manip', typeLabel: 'Манипуляция', typeIcon: '🎭',
+        why: 'Давит на суеверие и страх. Никакие пересылки не влияют на удачу.',
+        detail: 'Классический «цепной спам». Работает на страхе: «а вдруг правда?». Никакие пересылки не влияют на реальную жизнь, а «невезение» — это не событие, а ощущение.',
+        sourceName: 'Р. Чалдини, «Психология влияния»', sourceType: 'Книга по психологии', sourceUrl: null
+    },
+];
+
+function startManipGame() {
+    state.totalRounds = MANIP_DATA.length;
+    state.data.items = [...MANIP_DATA].sort(() => Math.random() - 0.5);
+    renderManipRound();
+}
+
+function renderManipRound() {
+    if (state.currentRound >= state.totalRounds) return finishGame();
+    const item = state.data.items[state.currentRound];
+    state.currentItem = { ...item, sourceName: item.source, sourceUrl: null };
+    showProgress();
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="game-question">Какой приём манипуляции использован?</div>
+        <div class="game-text">${item.text}</div>
+        <div class="answer-grid four">
+            ${item.options.map((o, i) => `<button class="answer-btn" data-i="${i}">${o}</button>`).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    const btns = content.querySelectorAll('.answer-btn');
+    btns.forEach(btn => btn.addEventListener('click', () => {
+        if (btns[0].disabled) return;
+        const i = parseInt(btn.dataset.i);
+        const correct = i === item.correct;
+        btns.forEach(b => b.disabled = true);
+        if (correct) {
+            btn.classList.add('correct'); sCorrect();
+            state.score += 20; state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+        } else {
+            btn.classList.add('wrong'); sWrong();
+            state.errors++;
+            document.getElementById('errorsDisplay').textContent = state.errors;
+            btns[item.correct].classList.add('correct');
+        }
+        state.currentItem.correctText = item.options[item.correct];
+        showFeedback(item, correct);
+    }));
+}
+
+/* ==================== ЛОГИЧЕСКАЯ ОШИБКА ==================== */
+const LOGIC_DATA = [
+    {
+        text: '«Все программисты — умные люди. Петя — умный. Значит, Петя — программист».',
+        options: ['Ошибка: обратное следование', 'Ложная причина', 'Обобщение', 'Ссылка на авторитет'],
+        correct: 0,
+        type: 'logic', typeLabel: 'Логическая ошибка', typeIcon: '🧩',
+        why: 'Из «все программисты умные» не следует, что все умные — программисты.',
+        detail: 'Формула ошибки: «Все A — это B. X — это B. Значит, X — это A». Не работает. Пример: «Все кошки — животные. Собака — животное. Значит, собака — кошка».',
+        sourceName: 'А. Ивин, «Логика»', sourceType: 'Учебник по логике', sourceUrl: null
+    },
+    {
+        text: '«После того как я надел этот браслет, я выиграл олимпиаду. Значит, браслет приносит удачу».',
+        options: ['Ложная дилемма', 'Ошибка «после — значит вследствие»', 'Подмена тезиса', 'Апелляция к эмоциям'],
+        correct: 1,
+        type: 'logic', typeLabel: 'Логическая ошибка', typeIcon: '🧩',
+        why: 'Последовательность событий не означает причину.',
+        detail: 'Ошибка post hoc ergo propter hoc. Если B произошло после A, это не значит, что A — причина B. Победа могла быть из-за подготовки, а браслет просто совпал.',
+        sourceName: 'Классическая логика (Аристотель)', sourceType: 'Основы логики', sourceUrl: null
+    },
+    {
+        text: '«Если ты не поддерживаешь эту реформу, значит, ты против развития страны».',
+        options: ['Обобщение', 'Ложная дилемма', 'Ссылка на большинство', 'Подмена понятия'],
+        correct: 1,
+        type: 'logic', typeLabel: 'Логическая ошибка', typeIcon: '🧩',
+        why: 'Скрытая ложная дилемма.',
+        detail: 'Приём подменяет сложный вопрос простым выбором: «за реформу» или «против страны». Но можно быть за развитие страны и не поддерживать конкретную реформу.',
+        sourceName: 'С. Поварнин, «Искусство спора»', sourceType: 'Книга по логике', sourceUrl: null
+    },
+    {
+        text: '«Это лекарство рекомендуют 90% врачей. Значит, оно точно безопасно».',
+        options: ['Ссылка на авторитет', 'Ложная причина', 'Обобщение', 'Подмена тезиса'],
+        correct: 0,
+        type: 'logic', typeLabel: 'Логическая ошибка', typeIcon: '🧩',
+        why: 'Популярность у врачей не гарантирует безопасность.',
+        detail: 'Даже если 90% врачей рекомендуют лекарство, это не доказывает его безопасность. Популярность — не аргумент. Безопасность подтверждается клиническими исследованиями.',
+        sourceName: 'Р. Чалдини, «Психология влияния»', sourceType: 'Книга по психологии', sourceUrl: null
+    },
+    {
+        text: '«Мой дедушка курил всю жизнь и дожил до 90 лет. Значит, курение не опасно».',
+        options: ['Обобщение на основе одного случая', 'Ложная дилемма', 'Апелляция к традиции', 'Подмена тезиса'],
+        correct: 0,
+        type: 'logic', typeLabel: 'Логическая ошибка', typeIcon: '🧩',
+        why: 'Один пример не опровергает статистику.',
+        detail: '«Поспешное обобщение»: на основе одного случая делается вывод обо всей популяции. Медицинская статистика говорит: курение повышает риск рака лёгких в 15–30 раз.',
+        sourceName: 'Д. Халперн, «Психология критического мышления»', sourceType: 'Учебник', sourceUrl: null
+    },
+];
+
+function startLogicGame() {
+    state.totalRounds = LOGIC_DATA.length;
+    state.data.items = [...LOGIC_DATA].sort(() => Math.random() - 0.5);
+    renderLogicRound();
+}
+
+function renderLogicRound() {
+    if (state.currentRound >= state.totalRounds) return finishGame();
+    const item = state.data.items[state.currentRound];
+    state.currentItem = { ...item, sourceName: item.source, sourceUrl: null };
+    showProgress();
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="game-question">Где логическая ошибка?</div>
+        <div class="game-text">${item.text}</div>
+        <div class="answer-grid four">
+            ${item.options.map((o, i) => `<button class="answer-btn" data-i="${i}">${o}</button>`).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    const btns = content.querySelectorAll('.answer-btn');
+    btns.forEach(btn => btn.addEventListener('click', () => {
+        if (btns[0].disabled) return;
+        const i = parseInt(btn.dataset.i);
+        const correct = i === item.correct;
+        btns.forEach(b => b.disabled = true);
+        if (correct) {
+            btn.classList.add('correct'); sCorrect();
+            state.score += 20; state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+        } else {
+            btn.classList.add('wrong'); sWrong();
+            state.errors++;
+            document.getElementById('errorsDisplay').textContent = state.errors;
+            btns[item.correct].classList.add('correct');
+        }
+        state.currentItem.correctText = item.options[item.correct];
+        showFeedback(item, correct);
+    }));
+}
+
+/* ==================== 2 ПРАВДЫ, 1 ЛОЖЬ ==================== */
+function startTwoTruthsGame() {
+    state.data.phrases = ['', '', '']; state.data.lieIndex = 1;
+    renderTwoTruthsP1();
+}
+
+function renderTwoTruthsP1() {
+    document.getElementById('headerExtra').innerHTML = '<span class="turn">Ход: Игрок 1</span>';
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="player-panel">
+            <div class="p-title">🎭 Игрок 1, твой ход!</div>
+            <div class="p-desc">Придумай <strong>три утверждения</strong>: два правдивых и одно ложное. Затем отметь ложное.</div>
+        </div>
+        <div class="input-wrap"><input class="text-input" id="p1a" placeholder="Утверждение 1" maxlength="80"></div>
+        <div class="input-wrap"><input class="text-input" id="p1b" placeholder="Утверждение 2" maxlength="80"></div>
+        <div class="input-wrap"><input class="text-input" id="p1c" placeholder="Утверждение 3" maxlength="80"></div>
+        <div class="game-question" style="font-size:1rem; margin-top:20px;">Какое утверждение — ложь?</div>
+        <div class="answer-grid" style="grid-template-columns: repeat(3, 1fr); max-width:640px;">
+            <button class="answer-btn" data-pick="0">1</button>
+            <button class="answer-btn" data-pick="1">2</button>
+            <button class="answer-btn" data-pick="2">3</button>
+        </div>
+        <button class="btn primary" id="continueBtn" style="margin-top:20px; display:none;">Передать ход Игроку 2 →</button>
+    `;
+    let lieIndex = null;
+    content.querySelectorAll('[data-pick]').forEach(b => b.addEventListener('click', () => {
+        content.querySelectorAll('[data-pick]').forEach(x => x.classList.remove('correct'));
+        b.classList.add('correct');
+        lieIndex = parseInt(b.dataset.pick);
+        document.getElementById('continueBtn').style.display = 'inline-block';
+    }));
+    document.getElementById('continueBtn').addEventListener('click', () => {
+        const a = document.getElementById('p1a').value.trim();
+        const b = document.getElementById('p1b').value.trim();
+        const c = document.getElementById('p1c').value.trim();
+        if (!a || !b || !c) { alert('Заполни все три поля!'); return; }
+        if (lieIndex === null) { alert('Отметь, какое утверждение ложное'); return; }
+        state.data.phrases = [a, b, c]; state.data.lieIndex = lieIndex;
+        sClick(); renderTwoTruthsP2();
+    });
+}
+
+function renderTwoTruthsP2() {
+    document.getElementById('headerExtra').innerHTML = '<span class="turn">Ход: Игрок 2</span>';
+    const content = document.getElementById('gameContent');
+    const phrases = state.data.phrases;
+    content.innerHTML = `
+        <div class="player-panel">
+            <div class="p-title">🕵️ Игрок 2, теперь твой ход!</div>
+            <div class="p-desc">Игрок 1 загадал три утверждения. Одно — ложь. Угадай какое!</div>
+        </div>
+        <div class="pair-list">
+            ${phrases.map((p, i) => `<div class="pair-item" data-i="${i}"><span class="num">${i+1}</span>${p}</div>`).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    content.querySelectorAll('.pair-item').forEach(item => item.addEventListener('click', () => {
+        const i = parseInt(item.dataset.i);
+        const correct = i === state.data.lieIndex;
+        content.querySelectorAll('.pair-item').forEach(x => x.style.pointerEvents = 'none');
+        item.classList.add(correct ? 'correct-pick' : 'wrong-pick');
+        if (!correct) content.querySelectorAll('.pair-item')[state.data.lieIndex].classList.add('correct-pick');
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback show ' + (correct ? 'good' : 'bad');
+        fb.innerHTML = correct
+            ? '✅ Верно! Игрок 2 угадал ложь.'
+            : `❌ Не угадал. Ложным было утверждение №${state.data.lieIndex + 1}.`;
+        if (correct) { state.score += 40; state.correct++; } else { state.errors++; }
+        document.getElementById('scoreDisplay').textContent = state.score;
+        document.getElementById('errorsDisplay').textContent = state.errors;
+        sCorrect();
+        setTimeout(() => {
+            state.data.phrases = ['', '', '']; state.data.lieIndex = 1;
+            renderTwoTruthsP1();
+        }, 3000);
+    }));
+}
+
+/* ==================== МОЗГОВОЙ ШТУРМ ==================== */
+const BRAINSTORM_TOPICS = [
+    'Почему важно проверять источник новости перед репостом?',
+    'Как соцсети влияют на наше мнение?',
+    'Что делать, если друг делится сомнительной инфой?',
+    'Почему фейки разлетаются быстрее правды?',
+    'Как отличить мнение блогера от факта?',
+];
+
+function startBrainstormGame() {
+    state.data.topic = BRAINSTORM_TOPICS[Math.floor(Math.random() * BRAINSTORM_TOPICS.length)];
+    state.data.player = 1; state.data.args = []; state.data.timeLeft = 60;
+    renderBrainstorm();
+}
+
+function renderBrainstorm() {
+    document.getElementById('headerExtra').innerHTML = `<span class="turn">Ход: Игрок ${state.data.player}</span>`;
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="player-panel">
+            <div class="p-title">💡 Мозговой штурм</div>
+            <div class="p-desc">Тема: <strong>«${state.data.topic}»</strong><br>По очереди вводите аргументы. 60 секунд!</div>
+        </div>
+        <div class="timer-display" id="timer">${state.data.timeLeft}</div>
+        <div class="input-wrap" style="display:flex; gap:10px;">
+            <input class="text-input" id="argInput" placeholder="Аргумент + Enter" maxlength="120" style="flex:1;">
+            <button class="btn primary" id="addBtn" style="padding:14px 24px;">→</button>
+        </div>
+        <div class="pair-list" id="argList" style="max-height:220px; overflow-y:auto;"></div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    const list = document.getElementById('argList');
+    const input = document.getElementById('argInput');
+    const addBtn = document.getElementById('addBtn');
+
+    function refreshList() {
+        list.innerHTML = state.data.args.map((a) =>
+            `<div class="pair-item" style="cursor:default;"><span class="num" style="background:${a.player === 1 ? '#6C63FF' : '#FF6584'};">${a.player}</span>${a.text}</div>`
+        ).join('');
+        list.scrollTop = list.scrollHeight;
+    }
+    refreshList();
+
+    function addArgument() {
+        const text = input.value.trim();
+        if (!text) return;
+        state.data.args.push({ player: state.data.player, text });
+        state.score += 10;
+        document.getElementById('scoreDisplay').textContent = state.score;
+        sClick(); input.value = '';
+        state.data.player = state.data.player === 1 ? 2 : 1;
+        document.querySelector('.player-panel .p-title').textContent = `💡 Ход: Игрок ${state.data.player}`;
+        document.getElementById('headerExtra').innerHTML = `<span class="turn">Ход: Игрок ${state.data.player}</span>`;
+        refreshList();
+    }
+    addBtn.addEventListener('click', addArgument);
+    input.addEventListener('keypress', e => { if (e.key === 'Enter') addArgument(); });
+    input.focus();
+
+    if (state.timer) clearInterval(state.timer);
+    state.timer = setInterval(() => {
+        state.data.timeLeft -= 1;
+        const t = document.getElementById('timer');
+        if (t) { t.textContent = state.data.timeLeft; if (state.data.timeLeft <= 10) t.classList.add('warning'); }
+        if (state.data.timeLeft <= 0) { clearInterval(state.timer); state.timer = null; finishBrainstorm(); }
+    }, 1000);
+}
+
+function finishBrainstorm() {
+    const content = document.getElementById('gameContent');
+    const totalArgs = state.data.args.length;
+    const p1 = state.data.args.filter(a => a.player === 1).length;
+    const p2 = state.data.args.filter(a => a.player === 2).length;
+    content.innerHTML = `
+        <div class="player-panel">
+            <div class="p-title">⏰ Время вышло!</div>
+            <div class="p-desc">Тема: <strong>«${state.data.topic}»</strong></div>
+        </div>
+        <div class="game-question">Всего аргументов: <strong>${totalArgs}</strong></div>
+        <div class="stat-box">
+            <p><strong>Игрок 1:</strong> ${p1} аргументов</p>
+            <p><strong>Игрок 2:</strong> ${p2} аргументов</p>
+        </div>
+        <div class="feedback show good" style="max-width:640px;">
+            <strong>🎯 Отличная работа!</strong> Мозговой штурм — про умение думать вместе.
+        </div>
+        <div class="nav-buttons">
+            <button class="btn primary" onclick="startBrainstormGame()">🔄 Ещё раунд</button>
+            <button class="btn" onclick="finishGame()">Завершить</button>
+        </div>
+    `;
+    sWin();
+    if (totalArgs >= 6) state.score += 30;
+    document.getElementById('scoreDisplay').textContent = state.score;
+}
+
+/* ==================== ПИНГ-ПОНГ АРГУМЕНТОВ ==================== */
+const PONG_TOPICS = [
+    { topic: 'Соцсети приносят больше пользы, чем вреда', side1: 'ЗА', side2: 'ПРОТИВ' },
+    { topic: 'Смартфоны надо запретить в школах', side1: 'ЗА', side2: 'ПРОТИВ' },
+    { topic: 'Блогеры должны нести ответственность за свой контент', side1: 'ЗА', side2: 'ПРОТИВ' },
+    { topic: 'Каждый имеет право на анонимность в интернете', side1: 'ЗА', side2: 'ПРОТИВ' },
+];
+
+function startArguPongGame() {
+    const t = PONG_TOPICS[Math.floor(Math.random() * PONG_TOPICS.length)];
+    state.data.topic = t.topic; state.data.side1 = t.side1; state.data.side2 = t.side2;
+    state.data.player = 1; state.data.argCount = { 1: 0, 2: 0 };
+    renderPong();
+}
+
+function renderPong() {
+    const side = state.data.player === 1 ? state.data.side1 : state.data.side2;
+    document.getElementById('headerExtra').innerHTML = `<span class="turn">Ход: Игрок ${state.data.player} (${side})</span>`;
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="player-panel">
+            <div class="p-title">🏓 Пинг-понг аргументов</div>
+            <div class="p-desc">Тема: <strong>«${state.data.topic}»</strong><br>Ты — Игрок ${state.data.player}, твоя позиция: <strong>${side}</strong></div>
+        </div>
+        <div class="timer-display" id="timer">15</div>
+        <div class="game-question">Приведи аргумент за 15 секунд!</div>
+        <div class="input-wrap" style="display:flex; gap:10px;">
+            <input class="text-input" id="argInput" placeholder="Аргумент..." maxlength="120" style="flex:1;" autofocus>
+            <button class="btn primary" id="addBtn" style="padding:14px 24px;">✓</button>
+        </div>
+        <div class="feedback" id="feedback"></div>
+        <div class="stat-box" id="scoreBox" style="margin-top:16px;">
+            <p><strong>Игрок 1:</strong> ${state.data.argCount[1]} аргументов</p>
+            <p><strong>Игрок 2:</strong> ${state.data.argCount[2]} аргументов</p>
+        </div>
+    `;
+    const input = document.getElementById('argInput');
+    const addBtn = document.getElementById('addBtn');
+
+    function submitArg() {
+        const text = input.value.trim();
+        if (!text) return;
+        state.data.argCount[state.data.player]++;
+        state.score += 15;
+        document.getElementById('scoreDisplay').textContent = state.score;
+        sClick();
+        state.data.player = state.data.player === 1 ? 2 : 1;
+        clearInterval(state.timer); state.timer = null;
+        renderPong();
+    }
+    addBtn.addEventListener('click', submitArg);
+    input.addEventListener('keypress', e => { if (e.key === 'Enter') submitArg(); });
+    input.focus();
+
+    state.data.timer = 15;
+    if (state.timer) clearInterval(state.timer);
+    state.timer = setInterval(() => {
+        state.data.timer -= 1;
+        const t = document.getElementById('timer');
+        if (t) { t.textContent = state.data.timer; if (state.data.timer <= 5) t.classList.add('warning'); }
+        if (state.data.timer <= 0) {
+            clearInterval(state.timer); state.timer = null;
+            const loser = state.data.player;
+            const winner = loser === 1 ? 2 : 1;
+            const c = document.getElementById('gameContent');
+            c.innerHTML = `
+                <div class="player-panel">
+                    <div class="p-title">⏰ Время вышло!</div>
+                    <div class="p-desc">Игрок ${loser} не успел придумать аргумент.</div>
+                </div>
+                <div class="game-question">🏆 Победил Игрок ${winner}!</div>
+                <div class="stat-box">
+                    <p><strong>Игрок 1:</strong> ${state.data.argCount[1]}</p>
+                    <p><strong>Игрок 2:</strong> ${state.data.argCount[2]}</p>
+                </div>
+                <div class="nav-buttons">
+                    <button class="btn primary" onclick="startArguPongGame()">🔄 Новый раунд</button>
+                    <button class="btn" onclick="finishGame()">Завершить</button>
+                </div>
+            `;
+            sWin();
+            state.score += 20;
+            document.getElementById('scoreDisplay').textContent = state.score;
+        }
+    }, 1000);
+}
+
+/* ==================== СОРТИРОВКА ==================== */
+const SORT_DATA = [
+    { text: 'Вода закипает при 100°C на уровне моря.',                       type: 'fact',    typeLabel: 'факт',   why: 'Проверяемый физический факт.' },
+    { text: 'Шоколад — самый вкусный десерт.',                                type: 'opinion', typeLabel: 'мнение', why: 'Вкус — субъективное ощущение.' },
+    { text: 'СРОЧНО! WhatsApp станет платным с 1 января! Перешли 10 друзьям!', type: 'fake',    typeLabel: 'фейк',   why: 'Классический спам. WhatsApp бесплатный.' },
+    { text: 'В 1961 году Юрий Гагарин первым полетел в космос.',              type: 'fact',    typeLabel: 'факт',   why: 'Исторический факт с точной датой.' },
+    { text: 'Футбол интереснее хоккея.',                                       type: 'opinion', typeLabel: 'мнение', why: 'Вкусовое сравнение.' },
+    { text: 'Мы используем только 10% мозга.',                                 type: 'fake',    typeLabel: 'фейк',   why: 'Миф. Мы используем весь мозг.' },
+    { text: 'Эверест — самая высокая гора на Земле.',                          type: 'fact',    typeLabel: 'факт',   why: '8849 метров над уровнем моря.' },
+    { text: 'Minecraft — лучшая игра всех времён.',                            type: 'opinion', typeLabel: 'мнение', why: '«Лучшая» — вкусовщина.' },
+    { text: 'Учёные доказали: чипсы McDonald\'s не портятся 10 лет.',          type: 'fake',    typeLabel: 'фейк',   why: 'Миф. Дело в отсутствии влаги, а не в консервантах.' },
+    { text: 'Роблокс позволяет создавать свои игры.',                          type: 'fact',    typeLabel: 'факт',   why: 'Roblox Studio позволяет любому сделать игру.' },
+    { text: 'Аниме лучше, чем американские мультики.',                          type: 'opinion', typeLabel: 'мнение', why: 'Вкус — субъективен.' },
+    { text: 'Молния никогда не бьёт в одно место дважды.',                      type: 'fake',    typeLabel: 'фейк',   why: 'Миф. Эмпайр-стейт-билдинг получает удары 23 раза в год.' },
+];
+
+function startSortGame() {
+    state.totalRounds = SORT_DATA.length;
+    state.data.items = [...SORT_DATA].sort(() => Math.random() - 0.5);
+    renderSortRound();
+}
+
+function renderSortRound() {
+    if (state.currentRound >= state.totalRounds) return finishGame();
+    const item = state.data.items[state.currentRound];
+    showProgress();
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="game-question">Куда отнести это утверждение?</div>
+        <div class="sort-card">${item.text}</div>
+        <div class="sort-bins">
+            <div class="sort-bin" data-type="fact">📊 ФАКТ</div>
+            <div class="sort-bin" data-type="opinion">💭 МНЕНИЕ</div>
+            <div class="sort-bin" data-type="fake">🕵️ ФЕЙК</div>
+        </div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    content.querySelectorAll('.sort-bin').forEach(bin => bin.addEventListener('click', () => {
+        if (content.querySelector('.sort-bin').style.pointerEvents === 'none') return;
+        content.querySelectorAll('.sort-bin').forEach(b => b.style.pointerEvents = 'none');
+        const chosen = bin.dataset.type;
+        const correct = chosen === item.type;
+        if (correct) {
+            bin.classList.add('correct'); sCorrect();
+            state.score += 15; state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+        } else {
+            bin.classList.add('wrong'); sWrong();
+            content.querySelector(`.sort-bin[data-type="${item.type}"]`).classList.add('correct');
+            state.errors++;
+            document.getElementById('errorsDisplay').textContent = state.errors;
+        }
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback show ' + (correct ? 'good' : 'bad');
+        fb.innerHTML = `<strong>${correct ? '✅ Верно!' : '❌ Неверно.'}</strong> Это <b>${item.typeLabel}</b>. ${item.why}
+            <div class="fb-actions"><button class="btn primary" id="nextBtn">Дальше →</button></div>`;
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            state.currentRound++;
+            if (state.currentRound >= state.totalRounds) finishGame();
+            else renderSortRound();
+        });
+    }));
+}
+
+/* ==================== ГОНКА НА ВРЕМЯ ==================== */
+const RACE_DATA = [
+    { q: 'Сколько цветов у радуги?',                              a: ['5', '7'],                          correct: 1, why: 'Семь: красный, оранжевый, жёлтый, зелёный, голубой, синий, фиолетовый.' },
+    { q: 'Кто написал «Войну и мир»?',                             a: ['Толстой', 'Достоевский'],          correct: 0, why: 'Лев Толстой, 1865–1869.' },
+    { q: 'В каком году человек впервые полетел в космос?',         a: ['1961', '1975'],                    correct: 0, why: '12 апреля 1961 года, Юрий Гагарин.' },
+    { q: 'Сколько сердец у осьминога?',                            a: ['Три', 'Одно'],                     correct: 0, why: 'Три: одно гонит кровь по телу, два — через жабры.' },
+    { q: '«Мы используем 10% мозга» — это…',                     a: ['Правда', 'Миф'],                   correct: 1, why: 'Миф. Мы используем весь мозг.' },
+    { q: 'В каком году вышла первая версия Minecraft?',            a: ['2009', '2015'],                    correct: 0, why: 'Первая альфа — 17 мая 2009 года.' },
+    { q: 'Самая высокая гора в мире:',                             a: ['Эверест', 'Эльбрус'],              correct: 0, why: 'Эверест — 8849 метров.' },
+    { q: 'YouTube основан в...',                                    a: ['2005', '2010'],                    correct: 0, why: '14 февраля 2005 года.' },
+    { q: '«Апелляция к авторитету» — это...',                      a: ['Логическая ошибка', 'Научный метод'], correct: 0, why: 'Ссылка на «авторитет» без доказательств.' },
+    { q: 'Сколько букв в русском алфавите?',                        a: ['33', '32'],                        correct: 0, why: '33 буквы.' },
+    { q: 'TikTok принадлежит компании...',                         a: ['ByteDance', 'Google'],             correct: 0, why: 'ByteDance — китайская компания.' },
+    { q: '«После этого — значит, из-за этого» — это...',           a: ['Логическая ошибка', 'Научный факт'], correct: 0, why: 'Ошибка post hoc: последовательность ≠ причина.' },
+    { q: 'В каком году отменили крепостное право в России?',        a: ['1861', '1905'],                    correct: 0, why: 'Манифест Александра II, 1861 год.' },
+    { q: 'Столица Австралии:',                                      a: ['Канберра', 'Сидней'],              correct: 0, why: 'Канберра, а не Сидней.' },
+    { q: '«Фейк» — это...',                                        a: ['Ложная информация', 'Личное мнение'], correct: 0, why: 'Фейк — подделка, выдаваемая за правду.' },
+];
+
+function startRaceGame() {
+    state.data.idx = 0;
+    state.data.timeLeft = 90;
+    state.data.active = true;
+    state.data.answered = false;
+    if (state.timer) clearInterval(state.timer);
+    state.timer = setInterval(() => {
+        state.data.timeLeft--;
+        const t = document.querySelector('.race-timer');
+        if (t) {
+            t.textContent = state.data.timeLeft;
+            if (state.data.timeLeft <= 15) t.classList.add('warning');
+        }
+        if (state.data.timeLeft <= 0) {
+            clearInterval(state.timer); state.timer = null;
+            state.data.active = false;
+            finishRace();
+        }
+    }, 1000);
+    renderRaceRound();
+}
+
+function renderRaceRound() {
+    if (!state.data.active) return;
+    if (state.data.idx >= RACE_DATA.length) {
+        clearInterval(state.timer); state.timer = null;
+        state.data.active = false;
+        return finishRace();
+    }
+    state.data.answered = false;
+    const item = RACE_DATA[state.data.idx];
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="race-timer">${state.data.timeLeft}</div>
+        <div class="game-question">${item.q}</div>
+        <div class="answer-grid two">
+            ${item.a.map((o, i) => `<button class="answer-btn" data-i="${i}">${o}</button>`).join('')}
+        </div>
+        <div class="feedback" id="feedback"></div>
+    `;
+    const btns = content.querySelectorAll('.answer-btn');
+    btns.forEach(btn => btn.addEventListener('click', () => {
+        if (state.data.answered || !state.data.active) return;
+        state.data.answered = true;
+        const i = parseInt(btn.dataset.i);
+        const correct = i === item.correct;
+        btns.forEach((b, idx) => {
+            b.disabled = true;
+            if (idx === item.correct) b.classList.add('correct');
+            else if (idx === i) b.classList.add('wrong');
+        });
+        if (correct) {
+            state.score += 15; state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+            sCorrect();
+        } else {
+            state.errors++;
+            document.getElementById('errorsDisplay').textContent = state.errors;
+            sWrong();
+        }
+        const fb = document.getElementById('feedback');
+        fb.className = 'feedback show ' + (correct ? 'good' : 'bad');
+        fb.innerHTML = `
+            <strong>${correct ? '✅ Верно!' : '❌ Мимо.'}</strong> ${item.why}
+            <div class="fb-actions"><button class="btn primary" id="nextRaceBtn">Далее →</button></div>
+        `;
+        document.getElementById('nextRaceBtn').addEventListener('click', () => {
+            if (!state.data.active) return;
+            state.data.idx++;
+            renderRaceRound();
+        });
+    }));
+}
+
+function finishRace() {
+    if (state.data.timeLeft > 0) { state.score += Math.min(30, state.data.timeLeft); document.getElementById('scoreDisplay').textContent = state.score; }
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="player-panel">
+            <div class="p-title">${state.data.timeLeft>0?'🏁 Все вопросы пройдены! +'+Math.min(30,state.data.timeLeft)+' бонус за скорость':'⏰ Время вышло!'}</div>
+            <div class="p-desc">Правильных: <strong>${state.correct}</strong> из <strong>${RACE_DATA.length}</strong></div>
+        </div>
+        <div class="nav-buttons">
+            <button class="btn primary" id="retryRace">🔄 Ещё раз</button>
+            <button class="btn" id="endRace">Завершить</button>
+        </div>
+    `;
+    sWin();
+    document.getElementById('retryRace').addEventListener('click', () => { resetState(); startRaceGame(); });
+    document.getElementById('endRace').addEventListener('click', () => finishGame());
+}
+
+/* ==================== ФЕЙК В ЛЕНТЕ ==================== */
+const FEED_DATA = [
+    {
+        from: 'Мама одноклассника',
+        sub: 'переслано много раз',
+        text: `<b>СРОЧНО!!!</b> <span class="flag" data-why="Крик «СРОЧНО» — приём, чтобы ты не думал, а сразу действовал.">WhatsApp становится платным</span> с 1 января!
+<br><br>
+<span class="flag" data-why="«Перешли 10 друзьям» — классический цепной спам. Ничего не изменится от пересылки.">Перешли это сообщение 10 друзьям</span> — и ты <span class="flag" data-why="Обещание «навсегда бесплатно» — приманка. Так не бывает.">останешься бесплатным навсегда</span>!
+<br><br>
+<span class="flag" data-why="«Официальное подтверждение» без ссылки на источник — пустая фраза.">Есть официальное подтверждение от разработчиков</span>. Если не перешлёшь — <span class="flag" data-why="Угроза удалить аккаунт — психологическое давление страхом.">твой аккаунт удалят</span>.`
+    },
+    {
+        from: 'Канал «Заработок онлайн»',
+        sub: 'реклама',
+        text: `<b>💸 ЗАРАБОТОК НА КРИПТЕ!</b>
+<br><br>
+<span class="flag" data-why="Обещание огромного дохода за короткий срок — классический признак финансовой пирамиды.">Заработай 100 000 рублей за 3 дня</span> без вложений! <span class="flag" data-why="«Известный инвестор» без имени — апелляция к авторитету без конкретики.">Известный инвестор расскажет</span>, как он это сделал.
+<br><br>
+<span class="flag" data-why="Ссылка на закрытый чат — попытка увести из публичного пространства, чтобы никто не смог проверить.">Вступи в закрытый чат по ссылке</span>. <span class="flag" data-why="«Только сегодня» — искусственный дефицит, давление срочностью.">Только сегодня — последний шанс!</span>`
+    },
+    {
+        from: 'Unknown',
+        sub: 'личное сообщение',
+        text: `<b>Привет!</b> Я увидел твой профиль — <span class="flag" data-why="Лесть — приём для установления контакта и снижения критичности.">ты очень интересный человек</span>. Хочу предложить <span class="flag" data-why="Расплывчатое обещание «хороших денег» без конкретики — приманка.">хорошие деньги за простую работу</span>.
+<br><br>
+<span class="flag" data-why="«Простая работа» без описания обязанностей — признак мошенничества.">Всё, что нужно — переводить деньги по реквизитам</span>. <span class="flag" data-why="Обещание быстрого и лёгкого заработка — манипуляция на жадности.">От 5000 рублей в день, ничего сложного!</span>`
+    },
+    {
+        from: 'Подруга Лена',
+        sub: 'переслано',
+        text: `<b>Девчонки, это важно!</b> <span class="flag" data-why="Апелляция к «всем уже известно» — социальное доказательство без источника.">Все уже знают</span>, что <span class="flag" data-why="Медицинское утверждение без ссылок на исследования — недостоверно.">новый вирус из Китая добрался до России</span>!
+<br><br>
+<span class="flag" data-why="«Сказали в новостях» без указания канала и даты — пустая отсылка.">Сказали в новостях</span>. <span class="flag" data-why="Призыв распространять непроверенную информацию дальше — цепной спам.">Скинь всем, кого знаешь!</span> <span class="flag" data-why="Угроза здоровью близких — эмоциональное давление.">Берегите себя и близких!</span>`
+    }
+];
+
+function startFeedGame() {
+    state.data.idx = 0;
+    state.data.found = 0;
+    state.data.foundInCurrent = 0;
+    state.data.totalInCurrent = 0;
+    state.data.messageDone = false;
+    renderFeedRound();
+}
+
+function renderFeedRound() {
+    if (state.data.idx >= FEED_DATA.length) return finishGame();
+    const msg = FEED_DATA[state.data.idx];
+    state.data.foundInCurrent = 0;
+    state.data.messageDone = false;
+
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="game-question">Найди все подозрительные фразы в сообщении — нажимай на них!</div>
+        <div class="fake-post">
+            <div class="fake-post-header">
+                <div class="fake-post-avatar">📱</div>
+                <div>
+                    <div class="fake-post-name">${msg.from}</div>
+                    <div class="fake-post-sub">${msg.sub}</div>
+                </div>
+            </div>
+            <div class="fake-post-body" id="feedBody">${msg.text}</div>
+        </div>
+        <div class="feed-counter" id="feedCounter">Найдено 0 из 0</div>
+        <div class="feedback" id="feedback" style="min-height:0; padding:0; margin:0;"></div>
+        <div class="nav-buttons" id="feedNav" style="margin-top:16px; display:none;">
+            <button class="btn primary" id="nextMsgBtn">Следующее сообщение →</button>
+        </div>
+    `;
+
+    const flags = content.querySelectorAll('.flag');
+    state.data.totalInCurrent = flags.length;
+    updateFeedCounter();
+
+    flags.forEach(f => {
+        f.addEventListener('click', () => {
+            if (f.classList.contains('revealed')) return;
+            f.classList.add('revealed');
+            state.data.found++;
+            state.data.foundInCurrent++;
+            state.score += 10;
+            state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+            sCorrect();
+            updateFeedCounter();
+
+            const fb = document.getElementById('feedback');
+            fb.className = 'feedback show good';
+            fb.style.padding = '16px 20px';
+            fb.style.margin = '12px 0';
+            fb.innerHTML = `<strong>🎭 ${f.dataset.why}</strong>`;
+
+            if (state.data.foundInCurrent === state.data.totalInCurrent) {
+                state.data.messageDone = true;
+                const nav = document.getElementById('feedNav');
+                nav.style.display = 'flex';
+                const btn = document.getElementById('nextMsgBtn');
+                if (state.data.idx === FEED_DATA.length - 1) {
+                    btn.textContent = '🏁 Завершить игру';
+                }
+                btn.onclick = () => {
+                    state.data.idx++;
+                    if (state.data.idx >= FEED_DATA.length) finishGame();
+                    else renderFeedRound();
+                };
+            }
+        });
+    });
+}
+
+function updateFeedCounter() {
+    const c = document.getElementById('feedCounter');
+    if (c) c.textContent = `Найдено ${state.data.foundInCurrent} из ${state.data.totalInCurrent}`;
+}
+
+/* ==================== ПОЧИНИ АРГУМЕНТ ==================== */
+const FIX_DATA = [
+    {
+        broken: '«Все мои друзья купили этот курс, значит, он лучший».',
+        etalon: 'Курс может быть полезен, если он решает конкретную задачу. Но популярность среди друзей не доказывает качество: у них могут быть другие цели и критерии.'
+    },
+    {
+        broken: '«После того как я надел эту футболку, я выиграл матч. Значит, она приносит удачу».',
+        etalon: 'Футболка не влияет на исход матча. Совпадение по времени ≠ причина. Важны подготовка, форма игроков и случайность.'
+    },
+    {
+        broken: '«Ты сам не идеален, поэтому твой аргумент про экологию не считается».',
+        etalon: 'Личные качества человека не отменяют его аргумент. Обсуждаем сам аргумент, а не личность. Это ошибка «переход на личности» (ad hominem).'
+    },
+    {
+        broken: '«Блогер сказал, что этот способ работает. Не веришь блогеру?»',
+        etalon: 'Нужно уточнить: какой блогер, где он это сказал, есть ли доказательства. «Блогер сказал» без конкретики — пустая фраза. А перевод стрелок на личность — манипуляция.'
+    },
+    {
+        broken: '«Если ты не подпишешься на канал, ты не настоящий фанат».',
+        etalon: 'Можно быть фанатом и не подписываться. Навязывание двух вариантов («подпишись или не фанат») — это ложная дилемма. В реальности вариантов больше.'
+    },
+    {
+        broken: '«Все мои одноклассники уже посмотрели этот сериал. Значит, он хороший».',
+        etalon: 'Популярность не доказывает качество. Сериал может быть популярным из-за рекламы или моды. «Хороший» — субъективная оценка, у каждого своя.'
+    }
+];
+
+function startFixArgGame() {
+    state.data.items = [...FIX_DATA].sort(() => Math.random() - 0.5);
+    state.data.idx = 0;
+    renderFixArgRound();
+}
+
+function renderFixArgRound() {
+    if (state.data.idx >= state.data.items.length) return finishGame();
+    const item = state.data.items[state.data.idx];
+    const content = document.getElementById('gameContent');
+    content.innerHTML = `
+        <div class="game-question">Почини аргумент: перепиши его так, чтобы он был корректен</div>
+        <div class="broken-arg">${item.broken}</div>
+        <textarea class="fixarea" id="fixInput" placeholder="Твоя версия аргумента... (или пропусти)"></textarea>
+        <div class="nav-buttons" style="margin-top:14px;">
+            <button class="btn primary" id="showEtalon">Показать эталон</button>
+            <button class="btn" id="nextFix">Дальше →</button>
+            <button class="btn secondary" id="skipFix">Пропустить</button>
+        </div>
+        <div class="etalon-box" id="etalonBox"><strong>Эталон:</strong> ${item.etalon}</div>
+    `;
+    document.getElementById('showEtalon').addEventListener('click', () => {
+        document.getElementById('etalonBox').classList.add('show');
+        state.score += 10;
+        state.correct++;
+        document.getElementById('scoreDisplay').textContent = state.score;
+        sCorrect();
+    });
+    document.getElementById('nextFix').addEventListener('click', () => {
+        const val = document.getElementById('fixInput').value.trim();
+        if (val.length > 0) {
+            state.score += 10;
+            state.correct++;
+            document.getElementById('scoreDisplay').textContent = state.score;
+        }
+        state.data.idx++;
+        if (state.data.idx >= state.data.items.length) finishGame();
+        else renderFixArgRound();
+    });
+    document.getElementById('skipFix').addEventListener('click', () => {
+        state.data.idx++;
+        if (state.data.idx >= state.data.items.length) finishGame();
+        else renderFixArgRound();
+    });
+}
+
+/* ==================== ОБЩЕЕ ==================== */
+function showProgress() {
+    const bar = document.getElementById('progressBar');
+    bar.style.display = 'block';
+    const pct = state.totalRounds ? (state.currentRound / state.totalRounds) * 100 : 0;
+    document.getElementById('progressFill').style.width = pct + '%';
+}
+
+function finishGame() {
+    if (state.timer) { clearInterval(state.timer); state.timer = null; }
+    if (state.feedbackTimeout) { clearTimeout(state.feedbackTimeout); state.feedbackTimeout = null; }
+    document.getElementById('finalScore').textContent = state.score;
+    document.getElementById('finalCorrect').textContent = state.correct;
+    document.getElementById('finalErrors').textContent = state.errors;
+
+    let rank, verdict, icon;
+    if (state.mode === 'pair') {
+        if (state.score >= 100) { rank = '🏆 Команда мечты'; icon = '🏆';
+            verdict = 'Вы отлично работаете в паре — слушаете друг друга, аргументируете, ищете истину вместе!';
+        } else if (state.score >= 50) { rank = '🤝 Хорошая пара'; icon = '🤝';
+            verdict = 'Вы неплохо справляетесь. Попробуйте чаще задавать вопросы друг другу.';
+        } else { rank = '🌱 Только начало'; icon = '🌱';
+            verdict = 'Хорошо, что попробовали! Работа в паре — это навык.';
+        }
+    } else {
+        if (state.score >= 150) { rank = '🥇 Мастер критического мышления'; icon = '🥇';
+            verdict = 'Ты отлично различаешь фейки, манипуляции и логические ловушки.';
+        } else if (state.score >= 90) { rank = '🥈 Уверенный аналитик'; icon = '🥈';
+            verdict = 'Хороший результат! Ты многое замечаешь, но иногда попадаешься на уловки.';
+        } else if (state.score >= 40) { rank = '🥉 Начинающий детектив'; icon = '🥉';
+            verdict = 'Ты учишься. Есть над чем поработать, но ты уже начал думать критически.';
+        } else { rank = '🌱 Первые шаги'; icon = '🌱';
+            verdict = 'Не расстраивайся! Критическое мышление — это навык, который развивается тренировкой.';
+        }
+    }
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('finalRank').textContent = rank;
+    document.getElementById('finalVerdict').textContent = verdict;
+    sWin();
+    goToPage(8);
+}
+
+document.getElementById('quitGameBtn').addEventListener('click', () => {
+    if (state.timer) { clearInterval(state.timer); state.timer = null; }
+    if (state.feedbackTimeout) { clearTimeout(state.feedbackTimeout); state.feedbackTimeout = null; }
+    goToPage(6);
+});
+document.getElementById('retryBtn').addEventListener('click', () => {
+    if (state.game) launchGame(state.game); else goToPage(5);
+});
+document.getElementById('backToGamesBtn').addEventListener('click', () => goToPage(6));
+document.getElementById('homeBtn').addEventListener('click', () => goToPage(1));
+document.getElementById('backToGameBtn').addEventListener('click', () => goToPage(state.returnPage || 7));
+
+document.addEventListener('click', () => initAudio(), { once: true });
+document.addEventListener('touchstart', () => initAudio(), { once: true });
+
+/* ===== Слой эффектов, тем и геймификации ===== */
+(function(){
+const R=document.documentElement,cv=document.getElementById('fx'),cx=cv.getContext('2d'),rn=document.getElementById('rain'),rc=rn.getContext('2d');
+const rs=()=>{cv.width=rn.width=innerWidth;cv.height=rn.height=innerHeight};rs();addEventListener('resize',rs);
+const css=v=>getComputedStyle(R).getPropertyValue(v).trim();
+let P=[],run=false,streak=0,drops=[];
+function burst(n,x,y){const cols=[css('--a1'),css('--a2'),css('--a3'),css('--a4')];
+ for(let i=0;i<n;i++){const a=Math.random()*6.28,s=3+Math.random()*7;P.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s-4,r:3+Math.random()*4,c:cols[i%4],l:70+Math.random()*40,t:Math.random()*6})}
+ if(!run){run=true;tick()}}
+function tick(){cx.clearRect(0,0,cv.width,cv.height);P=P.filter(p=>p.l-->0);
+ P.forEach(p=>{p.x+=p.vx;p.y+=p.vy;p.vy+=.25;p.vx*=.99;p.t+=.2;cx.save();cx.translate(p.x,p.y);cx.rotate(p.t);cx.fillStyle=p.c;cx.globalAlpha=Math.min(1,p.l/30);cx.fillRect(-p.r,-p.r/2,p.r*2,p.r);cx.restore()});
+ P.length?requestAnimationFrame(tick):run=false}
+function matrix(){if(R.dataset.theme!=='hack')return;const w=16;if(!drops.length)drops=Array(Math.ceil(innerWidth/w)).fill(0).map(()=>Math.random()*50);
+ rc.fillStyle='rgba(1,8,5,.12)';rc.fillRect(0,0,rn.width,rn.height);rc.fillStyle='#00ff9c';rc.font='14px monospace';
+ drops.forEach((y,i)=>{rc.fillText('01ФАКТЛОЖЬ'[Math.random()*10|0],i*w,y*w);drops[i]=y*w>rn.height&&Math.random()>.97?0:y+1})}
+setInterval(matrix,70);
+function setT(t){R.dataset.theme=t;try{localStorage.setItem('t',t)}catch(e){}drops=[];document.querySelectorAll('#themes button').forEach(b=>b.classList.toggle('on',b.dataset.t===t))}
+document.getElementById('themes').onclick=e=>{const b=e.target.closest('button');if(b){setT(b.dataset.t);burst(50,e.clientX,e.clientY)}};
+let st='pop';try{st=localStorage.getItem('t')||'pop'}catch(e){}setT(st);
+function count(){document.querySelectorAll('#page3 [data-n]').forEach(el=>{const t=+el.dataset.n,d=+(el.dataset.d||0),s=el.dataset.suf||'',t0=performance.now();
+ (function f(now){const k=Math.min(1,(now-t0)/1300),e=1-Math.pow(1-k,3);el.textContent=(t*e).toFixed(d).replace('.',',')+s;if(k<1)requestAnimationFrame(f)})(t0)})}
+const tt=document.getElementById('toast');let tm;
+function toast(s){tt.textContent=s;tt.classList.add('on');clearTimeout(tm);tm=setTimeout(()=>tt.classList.remove('on'),1100)}
+const _go=goToPage;
+window.goToPage=function(n){_go(n);const pg=document.getElementById('page'+n);if(pg)[...pg.children].forEach((c,i)=>c.style.setProperty('--i',i));
+ const ti=[2,3,4,11,12,13].indexOf(n);document.querySelectorAll('#steps i').forEach((d,i)=>d.className=i<=ti?'on':'');document.getElementById('steps').style.visibility=ti>=0?'visible':'hidden';
+ if(n===3)count();if(n===8){streak=0;setTimeout(()=>burst(180,innerWidth/2,innerHeight/3),150)}};
+let lx=innerWidth/2,ly=innerHeight/2;document.addEventListener('pointerdown',e=>{lx=e.clientX;ly=e.clientY},true);
+const _sc=sCorrect;window.sCorrect=function(){_sc();streak++;burst(26,lx,ly);if(streak>=2)toast('🔥 КОМБО x'+streak)};
+const _sw=sWrong;window.sWrong=function(){_sw();streak=0;const a=document.getElementById('app');a.classList.remove('hit');void a.offsetWidth;a.classList.add('hit')};
+window._fx={burst,toast};goToPage(1);
+})();
+
+/* ===== Финал: карточка, достижения, памятка, клавиши ===== */
+(function(){
+const $=id=>document.getElementById(id);let S={done:[],ach:[]};try{S=JSON.parse(localStorage.getItem('qz'))||S}catch(e){}
+const save=()=>{try{localStorage.setItem('qz',JSON.stringify(S))}catch(e){}};
+const AC={first:['🎮','Первый шаг','Пройди любую игру'],sniper:['🎯','Снайпер','Игра без ошибок'],fire:['🔥','На огне','Комбо x5'],speed:['⚡','Скорострел','Все 15 в гонке до конца таймера'],master:['🧠','Мастер','150+ очков за игру'],all:['🏆','Коллекционер','Пройди все 8 соло-игр']};
+let cs=0,ms=0;const _s=sCorrect;window.sCorrect=function(){_s();cs++;ms=Math.max(ms,cs)};const _w=sWrong;window.sWrong=function(){_w();cs=0};
+// блок результата
+const box=document.createElement('div');box.innerHTML='<div class="xp"><div class="xp-top"><span id="accTxt"></span><span id="stars"></span></div><div class="progress-bar" style="max-width:none"><div class="progress-fill" id="xpFill" style="width:0"></div></div></div><input class="text-input" id="plName" placeholder="Твоё имя для карточки" maxlength="18" style="margin-bottom:12px;text-align:center"><button class="btn full" id="dlCard" style="margin-bottom:10px">💾 Скачать карточку игрока</button><button class="btn full" id="toMemo" style="margin-bottom:10px;background:var(--a4)">📋 Памятка и достижения</button>';
+$('retryBtn').before(...box.children);
+$('toMemo').onclick=()=>goToPage(10);
+const pb=document.querySelector('#page6 .nav-buttons');const mb=document.createElement('button');mb.className='btn';mb.textContent='📋 Памятка';mb.onclick=()=>goToPage(10);pb.append(mb);
+function award(k,fresh){if(!S.ach.includes(k)){S.ach.push(k);fresh.push(k)}}
+function onFinish(){const tot=state.correct+state.errors,acc=tot?Math.round(state.correct/tot*100):null;
+ if(state.game&&!S.done.includes(state.game))S.done.push(state.game);
+ const fresh=[];award('first',fresh);if(state.errors===0&&state.correct>0)award('sniper',fresh);if(ms>=5)award('fire',fresh);
+ if(state.game==='race'&&state.data.timeLeft>0)award('speed',fresh);if(state.score>=150)award('master',fresh);
+ if(SOLO_GAMES.every(g=>S.done.includes(g.id)))award('all',fresh);save();
+ const st=acc==null?(state.score>=100?3:state.score>=50?2:1):acc>=90?3:acc>=70?2:1,lv=Math.floor(state.score/50)+1;
+ $('accTxt').textContent=(acc==null?'':'Точность '+acc+'% · ')+'Уровень '+lv;$('stars').textContent='⭐'.repeat(st)+'☆'.repeat(3-st);
+ const f=$('xpFill');f.style.width='0';setTimeout(()=>f.style.width=(state.score%50)/50*100+'%',300);
+ fresh.forEach((k,i)=>setTimeout(()=>_fx.toast('🏅 '+AC[k][1]+'!'),1200+i*1400));ms=0;cs=0;return{acc,st}}
+let last={};
+function decorate(){document.querySelectorAll('#gameGrid .done,.chip').forEach(e=>e.remove());
+ const L=state.mode==='pair'?PAIR_GAMES:SOLO_GAMES;[...document.querySelectorAll('#gameGrid .game-card')].forEach((c,i)=>{if(S.done.includes(L[i].id))c.insertAdjacentHTML('beforeend','<span class="done">✓</span>')});
+ $('modeLabel').insertAdjacentHTML('beforeend','<span class="chip">'+L.filter(g=>S.done.includes(g.id)).length+' / '+L.length+'</span>')}
+function memo(){const g=$('achGrid');g.innerHTML=Object.entries(AC).map(([k,v])=>`<div class="${S.ach.includes(k)?'':'lock'}"><i>${v[0]}</i><b>${v[1]}</b>${v[2]}</div>`).join('')}
+document.querySelectorAll('.memo-step').forEach(s=>s.onclick=()=>{s.classList.toggle('on');sClick();const all=document.querySelectorAll('.memo-step.on').length===5;if(all){const r=s.getBoundingClientRect();_fx.burst(120,r.x+r.width/2,r.y);_fx.toast('🛡️ ИММУНИТЕТ ВКЛЮЧЁН!');sWin()}});
+const _g=goToPage;window.goToPage=function(n){_g(n);if(n===7)cs=ms=0;if(n===6)decorate();if(n===8)last=onFinish();if(n===10){memo();document.querySelectorAll('.memo-step').forEach(s=>s.classList.remove('on'))}};
+// карточка PNG
+$('dlCard').onclick=async()=>{try{await document.fonts.ready}catch(e){}
+ const nm=($('plName').value.trim()||'Игрок').slice(0,18),W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d');
+ const T=(s,px,y,col='#111',w=900)=>{do{x.font=w+' '+px+'px Unbounded,Rubik,sans-serif';px-=2}while(x.measureText(s).width>800&&px>14);x.fillStyle=col;x.textAlign='center';x.fillText(s,W/2,y)};
+ x.fillStyle='#ffe45e';x.fillRect(0,0,W,H);x.fillStyle='rgba(17,17,17,.22)';for(let i=0;i<W;i+=40)for(let j=0;j<H;j+=40){x.beginPath();x.arc(i,j,3,0,7);x.fill()}
+ x.fillStyle='#111';x.fillRect(110,150,880,1060);x.fillStyle='#fffaf0';x.fillRect(80,120,880,1060);x.strokeStyle='#111';x.lineWidth=8;x.strokeRect(80,120,880,1060);
+ x.fillStyle='#ff4fa3';x.fillRect(80,120,880,150);x.strokeRect(80,120,880,150);T('ПРЕЖДЕ ЧЕМ ПОВЕРИТЬ',46,210,'#fff');
+ T('ИГРОК',30,360,'#4a4a4a',800);T(nm.toUpperCase(),80,450);T($('finalRank').textContent,46,540,'#111',800);
+ T(String(state.score),260,780,'#3d5afe');T('ОЧКОВ',40,850,'#4a4a4a',800);T('⭐'.repeat(last.st||1),90,970);
+ T(last.acc==null?'Верных: '+state.correct:'Точность: '+last.acc+'%',44,1050,'#111',800);T('Ошибок: '+state.errors+'  •  '+new Date().toLocaleDateString('ru-RU'),32,1115,'#4a4a4a',800);
+ c.toBlob(b=>{const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download='karta-igroka.png';a.click()});_fx.toast('💾 Сохранено!')};
+// всплывающие +очки
+const sd=$('scoreDisplay');let pv=0;new MutationObserver(()=>{const v=+sd.textContent||0,d=v-pv;pv=v;if(d>0){const r=sd.getBoundingClientRect(),p=document.createElement('div');p.className='plus';p.textContent='+'+d;p.style.left=r.x+'px';p.style.top=r.y-6+'px';document.body.append(p);setTimeout(()=>p.remove(),1000)}}).observe(sd,{childList:true,characterData:true,subtree:true});
+// клавиши 1-4 и Enter
+addEventListener('keydown',e=>{if(!$('page7').classList.contains('active')||/INPUT|TEXTAREA/.test(document.activeElement.tagName))return;
+ if(e.key>='1'&&e.key<='4'){const b=document.querySelectorAll('#gameContent .answer-btn')[e.key-1];if(b&&!b.disabled)b.click()}
+ else if(e.key==='Enter'){const b=[...document.querySelectorAll('#gameContent .btn.primary')].find(x=>x.offsetParent);if(b)b.click()}});
+})();
+
+/* ===== Панель ведущего, модалки, таймер раунда, подсказки ===== */
+(function(){
+const $=id=>document.getElementById(id),LS=window.localStorage;
+const get=(k,d)=>{try{const v=JSON.parse(LS.getItem(k));return v==null?d:v}catch(e){return d}},set=(k,v)=>{try{LS.setItem(k,JSON.stringify(v))}catch(e){}};
+const pt=document.createElement('div');pt.className='ptools';
+pt.innerHTML='<button id="ptFs" title="Полный экран">⛶</button><button id="ptMute" title="Звук">🔊</button><button id="ptTime" title="Клик — старт/пауза, правый клик — сброс" style="padding:0 12px">▶ 00:00</button><button id="ptTeams" title="Команды">👥</button><button id="ptRnd" title="Случайный ученик">🎲</button><button id="ptReset" title="Сброс для нового класса">♻</button>';
+document.body.append(pt);
+$('ptFs').onclick=()=>document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>{});
+window.muted=get('lessonMute',false);const mt=$('ptMute'),mr=()=>mt.textContent=window.muted?'🔇':'🔊';mr();
+mt.onclick=()=>{window.muted=!window.muted;set('lessonMute',window.muted);mr();sClick()};
+let el=0,run=0,t0=0;const tb=$('ptTime'),fmt=s=>String(s/60|0).padStart(2,'0')+':'+String(s%60).padStart(2,'0');
+setInterval(()=>{if(run)tb.textContent='⏸ '+fmt(el+Math.floor((Date.now()-t0)/1000))},500);
+tb.onclick=()=>{if(run){el+=Math.floor((Date.now()-t0)/1000);run=0;tb.textContent='▶ '+fmt(el)}else{run=1;t0=Date.now()}};
+tb.oncontextmenu=e=>{e.preventDefault();run=0;el=0;tb.textContent='▶ 00:00'};
+function modal(id,html){const m=document.createElement('div');m.className='modal';m.id=id;m.innerHTML='<div class="modal-box"><button class="btn secondary mclose">✕</button>'+html+'</div>';m.onclick=e=>{if(e.target===m||e.target.classList.contains('mclose'))m.classList.remove('on')};document.body.append(m);return m}
+addEventListener('keydown',e=>{if(e.key==='Escape')document.querySelectorAll('.modal.on').forEach(m=>m.classList.remove('on'))});
+// команды
+const tm=modal('mTeams','<div class="title" style="font-size:1.3rem">👥 <span>Команды</span></div><div id="tList"></div><div class="nav-buttons"><button class="btn" id="tAdd">+ Команда</button></div><div class="subtitle" style="margin-top:10px;font-size:.8rem">Кнопки − / + меняют счёт на 5 очков</div>');
+let teams=get('lessonTeams',[{n:'Команда 1',s:0},{n:'Команда 2',s:0},{n:'Команда 3',s:0}]);
+const esc=s=>s.replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+function drawT(){$('tList').innerHTML=teams.map((t,i)=>'<div style="display:flex;gap:8px;margin-bottom:8px;align-items:center"><input class="text-input" data-i="'+i+'" value="'+esc(t.n)+'" style="flex:1;min-width:0"><button class="btn" data-d="-5" data-i="'+i+'">−</button><b class="score" style="min-width:44px;text-align:center">'+t.s+'</b><button class="btn" data-d="5" data-i="'+i+'">+</button><button class="btn secondary" data-x="'+i+'">✕</button></div>').join('')}
+tm.addEventListener('input',e=>{if(e.target.tagName==='INPUT'){teams[e.target.dataset.i].n=e.target.value;set('lessonTeams',teams)}});
+tm.addEventListener('click',e=>{const b=e.target.closest('button');if(!b||b.classList.contains('mclose'))return;
+ if(b.dataset.d)teams[b.dataset.i].s+=+b.dataset.d;else if(b.dataset.x!=null)teams.splice(b.dataset.x,1);else if(b.id==='tAdd')teams.push({n:'Команда '+(teams.length+1),s:0});else return;
+ sClick();set('lessonTeams',teams);drawT()});
+$('ptTeams').onclick=()=>{drawT();tm.classList.add('on')};
+// случайный ученик
+const rm=modal('mRnd','<div class="title" style="font-size:1.3rem">🎲 <span>Кто отвечает?</span></div><textarea class="fixarea" id="rNames" placeholder="Имена через запятую или с новой строки"></textarea><div id="rOut" class="big-score" style="font-size:2rem;min-height:3rem;margin:10px 0;text-align:center"></div><div class="nav-buttons" style="margin-top:0"><button class="btn primary" id="rGo">🎲 Выбрать</button></div>');
+$('rNames').value=get('lessonNames','');$('rNames').oninput=()=>set('lessonNames',$('rNames').value);
+$('rGo').onclick=()=>{const L=$('rNames').value.split(/[,\n]/).map(s=>s.trim()).filter(Boolean);if(!L.length){$('rOut').textContent='Добавь имена 👆';return}
+ let n=0,d=60;(function step(){$('rOut').textContent=L[Math.random()*L.length|0];sClick();n++;if(n<22){d+=9;setTimeout(step,d)}else{const w=L[Math.random()*L.length|0];$('rOut').textContent='🎉 '+w;sWin();const r=$('rOut').getBoundingClientRect();_fx.burst(120,r.x+r.width/2,r.y)}})()};
+$('ptRnd').onclick=()=>rm.classList.add('on');
+$('ptReset').onclick=()=>{if(confirm('Сбросить всё для нового класса? Очки, достижения, команды и имена будут удалены.')){try{LS.clear()}catch(e){}location.reload()}};
+// следующая игра
+const nb=document.createElement('button');nb.className='btn primary full';nb.id='nextGameBtn';nb.style.marginBottom='10px';$('retryBtn').before(nb);$('retryBtn').classList.remove('primary');
+const nextOf=()=>{const L=state.mode==='pair'?PAIR_GAMES:SOLO_GAMES,i=L.findIndex(g=>g.id===state.game);return L[i+1]};
+nb.onclick=()=>{const n=nextOf();sClick();n?launchGame(n.id):goToPage(10)};
+// таймер раунда 60 с
+const RG=['fake','opinion','sort','manip','logic'];let rt=null,rl=60;
+const rb=document.createElement('div');rb.className='progress-bar';rb.id='rtBar';rb.style.display='none';rb.innerHTML='<div class="progress-fill" id="rtFill"></div>';$('gameContent').before(rb);
+function rtStop(){clearInterval(rt);rt=null;rb.style.display='none';if(RG.includes(state.game))$('headerExtra').textContent=''}
+function timeout(){const it=state.currentItem,c=$('gameContent'),q=s=>[...c.querySelectorAll(s)];let b;
+ if(state.game==='fake')b=q('.answer-btn').find(x=>(x.dataset.ans==='fake')!==it.isFake);
+ else if(state.game==='opinion')b=q('.answer-btn').find(x=>x.dataset.ans!==it.type);
+ else if(state.game==='sort'){const t=state.data.items[state.currentRound].type;b=q('.sort-bin').find(x=>x.dataset.type!==t)}
+ else b=q('.answer-btn').find(x=>+x.dataset.i!==it.correct);
+ if(!b)return;b.click();b.classList.remove('wrong');$('feedback').insertAdjacentHTML('afterbegin','<strong>⏰ Время вышло!</strong> ')}
+function rtStart(){rtStop();rl=60;const f=$('rtFill');rb.style.display='block';f.style.width='100%';f.style.background='';
+ rt=setInterval(()=>{const fb=$('feedback');if(!$('page7').classList.contains('active')||(fb&&fb.classList.contains('show')))return rtStop();
+  rl--;f.style.width=rl/60*100+'%';$('headerExtra').innerHTML='<span class="turn">⏱ '+rl+' с</span>';if(rl<=10)f.style.background='var(--no)';
+  if(rl<=0){rtStop();timeout()}},1000);$('headerExtra').innerHTML='<span class="turn">⏱ 60 с</span>'}
+new MutationObserver(()=>{if(RG.includes(state.game)&&$('gameContent').querySelector('.answer-btn,.sort-bin'))rtStart()}).observe($('gameContent'),{childList:true});
+// подсказки ведущему
+const H={fake:'Спросите класс: по каким признакам вы поймёте, что это фейк?',opinion:'Попросите привести свой пример факта и мнения про любимую игру.',sort:'Пусть класс проголосует поднятием руки до ответа игрока.',race:'Засеките время вслух: «Кто успеет все 15?» Болейте за игрока!',manip:'После ответа спросите: где вы сами встречали такой приём?',slider:'А теперь спросите класс, кто уже видел такие сообщения в своих чатах.',logic:'Пусть ученик объяснит ошибку своими словами, прежде чем смотреть ответ.',fixarg:'Дайте 30 секунд подумать вслух и сравните версии учеников с эталоном.',twotruths:'Напомните: ложь должна звучать правдоподобно — в этом вся игра.',brainstorm:'После таймера попросите пару выбрать самый сильный аргумент.',argupong:'Следите, чтобы аргументы не повторялись по смыслу.'};
+const hn=document.createElement('div');hn.className='badge orange';hn.id='hint';hn.title='Нажми, чтобы скрыть';hn.onclick=()=>hn.classList.remove('on');document.body.append(hn);
+const _g2=goToPage;window.goToPage=function(n){_g2(n);if(n!==7)rtStop();
+ if(n===7&&H[state.game]){hn.textContent='💬 '+H[state.game];hn.classList.add('on')}else hn.classList.remove('on');
+ if(n===8){const x=nextOf();nb.textContent=x?'➡️ Следующая игра: '+x.title:'🏁 Финал: памятка и достижения'}};
+})();
+</script>
+</body>
+</html>
